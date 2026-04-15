@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: throttlr
+  mongodb:
+      uri: mongodb://localhost:27017/throttlr
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:your_secret_here}
+    issuer: throttlr
+    audience: throttlr_client
+    expiration: 24h
+  auth:
+    lookup-secret: ${AUTH_LOOKUP_SECRET:my-local-dev-lookup-secret}
+  admin:
+    key: admin-secret-key-change-this
