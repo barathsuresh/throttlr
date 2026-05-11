@@ -1,6 +1,7 @@
 package com.desertrider.throttlr.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.desertrider.throttlr.dto.request.LoginRequest;
 import com.desertrider.throttlr.dto.response.LoginResponse;
@@ -10,6 +11,7 @@ import com.desertrider.throttlr.model.Account;
 import com.desertrider.throttlr.repository.AccountRepository;
 import com.desertrider.throttlr.security.jwt.JwtProvider;
 import com.desertrider.throttlr.security.service.PassphraseService;
+import com.desertrider.throttlr.validation.InputLimits;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,18 +40,30 @@ public class AuthService {
                 .createdAt(System.currentTimeMillis())
                 .build();
 
-        accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
+
         return new RegisterResponse(
-                account.getId(),
+                savedAccount.getId(),
                 passphrase,
                 "Your passphrase is shown only once. Please store it securely. It cannot be retrieved later.");
+
     }
+
     /**
      * Authenticates a user by validating the provided passphrase against the stored
+     * 
      * @param request
      * @return
      */
     public LoginResponse login(LoginRequest request) {
+        if (request == null || !StringUtils.hasText(request.passphrase())) {
+            throw new IllegalArgumentException("Passphrase is required");
+        }
+        InputLimits.requireMaxLength(
+                request.passphrase(),
+                InputLimits.PASSPHRASE_MAX_LENGTH,
+                "Passphrase must be at most 300 characters");
+
         String lookup = passphraseService.createLookup(request.passphrase());
 
         Account account = accountRepository.findByPassphraseLookup(lookup)
@@ -64,4 +78,5 @@ public class AuthService {
 
         return new LoginResponse(token, account.getId());
     }
+
 }

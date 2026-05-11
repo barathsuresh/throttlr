@@ -28,5 +28,40 @@
     "name": "app.auth.lookup-secret",
     "type": "java.lang.String",
     "description": "A description for 'app.auth.lookup-secret'"
+  },
+  {
+    "name": "app.app-key.lookup-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'app.app-key.lookup-secret'"
+  },
+  {
+    "name": "app.analytics.flush-cron",
+    "type": "java.lang.String",
+    "description": "A description for 'app.analytics.flush-cron'"
+  },
+  {
+    "name": "app.analytics.cleanup-cron",
+    "type": "java.lang.String",
+    "description": "A description for 'app.analytics.cleanup-cron'"
+  },
+  {
+    "name": "app.analytics.retention-days",
+    "type": "java.lang.String",
+    "description": "A description for 'app.analytics.retention-days'"
+  },
+  {
+    "name": "app.security.trust-forwarded-headers",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.trust-forwarded-headers'"
+  },
+  {
+    "name": "app.security.cors.allowed-origins",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.cors.allowed-origins'"
+  },
+  {
+    "name": "app.scheduling.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'app.scheduling.enabled'"
   }
 ]}

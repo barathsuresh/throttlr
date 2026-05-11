@@ -42,7 +42,7 @@ public class JwtProvider {
         return null;
     }
 
-    private String tokenPreview(String token) {
+    public String tokenPreview(String token) {
         int previewLength = Math.min(10, token.length());
         return token.substring(0, previewLength) + "...(len=" + token.length() + ")";
     }

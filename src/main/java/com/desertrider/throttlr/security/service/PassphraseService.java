@@ -1,6 +1,7 @@
 package com.desertrider.throttlr.security.service;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.List;
 
@@ -57,11 +58,12 @@ public class PassphraseService {
     }
 
     public String hash(String passphrase) {
-        return passwordEncoder.encode(passphrase);
+        return passwordEncoder.encode(normalizeForPasswordEncoder(passphrase));
     }
 
     public boolean matches(String rawPassphrase, String storedHash) {
-        return passwordEncoder.matches(rawPassphrase, storedHash);
+        String normalizedPassphrase = normalizeForPasswordEncoder(rawPassphrase);
+        return passwordEncoder.matches(normalizedPassphrase, storedHash);
     }
 
     private String toHex(byte[] bytes) {
@@ -70,5 +72,14 @@ public class PassphraseService {
             builder.append(String.format("%02x", b));
         }
         return builder.toString();
+    }
+
+    private String normalizeForPasswordEncoder(String passphrase) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return toHex(digest.digest(passphrase.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to normalize passphrase for hashing", e);
+        }
     }
 }

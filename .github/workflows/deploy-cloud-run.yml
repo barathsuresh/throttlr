@@ -1,0 +1,76 @@
+name: Deploy Backend to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGION: ${{ vars.GCP_REGION }}
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  SERVICE_NAME: ${{ vars.CLOUD_RUN_SERVICE }}
+  REPOSITORY: ${{ vars.ARTIFACT_REGISTRY_REPOSITORY }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Run tests
+        run: ./mvnw -q test
+
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker auth
+        run: gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+
+      - name: Build image
+        run: docker build -t "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME:$GITHUB_SHA" .
+
+      - name: Push image
+        run: docker push "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME:$GITHUB_SHA"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy "$SERVICE_NAME" \
+            --image "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE_NAME:$GITHUB_SHA" \
+            --region "$REGION" \
+            --platform managed \
+            --allow-unauthenticated \
+            --min-instances 0 \
+            --max-instances 2 \
+            --memory 768Mi \
+            --cpu 1 \
+            --port 8080 \
+            --set-env-vars SPRING_PROFILES_ACTIVE=prod,TRUST_FORWARDED_HEADERS=true,REDIS_SSL_ENABLED=true \
+            --set-secrets JWT_SECRET=JWT_SECRET:latest,AUTH_LOOKUP_SECRET=AUTH_LOOKUP_SECRET:latest,APP_KEY_LOOKUP_SECRET=APP_KEY_LOOKUP_SECRET:latest,ADMIN_KEY=ADMIN_KEY:latest,MONGODB_URI=MONGODB_URI:latest,REDIS_HOST=REDIS_HOST:latest,REDIS_PORT=REDIS_PORT:latest,REDIS_PASSWORD=REDIS_PASSWORD:latest,CORS_ALLOWED_ORIGINS=CORS_ALLOWED_ORIGINS:latest

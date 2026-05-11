@@ -1,13 +1,13 @@
 package com.desertrider.throttlr.repository;
 
-import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.desertrider.throttlr.model.Analytics;
 
 public interface AnalyticsRepository extends MongoRepository<Analytics, String> {
-    List<Analytics> findByAppIdAndClientId(String appId, String clientId);
+    Optional<Analytics> findByAppIdAndHour(String appId, long hour);
 
-    List<Analytics> findByAppId(String appId);
+    long deleteByHourLessThan(long hour);
 }

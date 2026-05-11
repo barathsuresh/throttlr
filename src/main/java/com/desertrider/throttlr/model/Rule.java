@@ -6,11 +6,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.desertrider.throttlr.model.enums.Algorithm;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "rules")
 @CompoundIndex(name = "appId_clientId_idx", def = "{'appId': 1, 'clientId': 1}", unique = true)
 public class Rule {
