@@ -93,6 +93,7 @@ export function Dashboard() {
 
       {newApp && (
         <OnetimeSecretModal
+          key={newApp.appId}
           open={true}
           title="App Key Created"
           label="App key"

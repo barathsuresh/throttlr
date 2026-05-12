@@ -35,8 +35,12 @@ export function AppRules() {
   }
 
   const handleDelete = async (clientId: string) => {
-    await deleteRule(clientId)
-    toast.success('Rule deleted')
+    try {
+      await deleteRule(clientId)
+      toast.success('Rule deleted')
+    } catch {
+      toast.error('Failed to delete rule')
+    }
   }
 
   return (

@@ -103,6 +103,7 @@ const TAB_LABELS: Record<string, string> = {
 export function Demo() {
   const { isAlive } = useBackendHealth()
   const [demo, setDemo] = useState<DemoAppResponse | null>(null)
+  const [expiresAt, setExpiresAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const fetched = useRef(false)
 
@@ -110,7 +111,10 @@ export function Demo() {
     if (!isAlive || fetched.current) return
     fetched.current = true
     createDemoAppKey()
-      .then(setDemo)
+      .then((d) => {
+        setDemo(d)
+        setExpiresAt(Date.now() + d.expiresInMs)
+      })
       .catch(() => setError('Failed to create demo session. Try refreshing.'))
   }, [isAlive])
 
@@ -136,7 +140,7 @@ export function Demo() {
           <p className="text-sm text-red-600">{error}</p>
         )}
 
-        {demo && (
+        {demo && expiresAt !== null && (
           <Tabs defaultValue={demo.rules[0].algorithm}>
             <TabsList>
               {demo.rules.map((rule) => (
@@ -150,7 +154,7 @@ export function Demo() {
                 <AlgoTab
                   rule={rule}
                   appKey={demo.appKey}
-                  expiresAt={Date.now() + demo.expiresInMs}
+                  expiresAt={expiresAt}
                 />
               </TabsContent>
             ))}
