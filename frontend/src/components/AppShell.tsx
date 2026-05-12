@@ -39,8 +39,10 @@ export function AppShell({
       <header className="sticky top-0 z-30 border-b border-slate-900/10 bg-[#fbf1d8]/85 px-4 py-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-2xl bg-slate-950 text-sm font-black text-amber-300 shadow-lg shadow-slate-900/20">
-              T
+            <span className="grid h-9 w-9 place-items-center rounded-2xl bg-slate-950 shadow-lg shadow-slate-900/20">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 289.0625 30 30" fill="#fcd34d" className="h-5 w-5">
+                <path d="m 14.703125,5.5722656 a 12,12 0 0 0 -12,12.0000004 12,12 0 0 0 0.6894531,3.964843 A 10.746539,10.746539 0 0 1 3.0976562,19.09375 10.746539,10.746539 0 0 1 13.84375,8.3476562 10.746539,10.746539 0 0 1 19.826172,10.173828 L 21.966797,8.0332031 A 12,12 0 0 0 14.703125,5.5722656 Z m 9.148437,3.6035156 c -0.25173,0.00423 -0.507325,0.1022801 -0.71875,0.28125 l -9.193359,7.7812498 c -0.422789,0.35795 -1.416166,1.411952 -0.002,2.826172 1.414471,1.41445 2.468093,0.418804 2.826172,-0.0039 l 7.783203,-9.189453 c 0.358051,-0.42275 0.391737,-1.0223328 0,-1.4140628 -0.195869,-0.19587 -0.443582,-0.285475 -0.695313,-0.28125 z m 1.84961,3.6074218 -2.021484,2.021485 A 10.746539,10.746539 0 0 1 24.585938,19 h 2.015624 a 12,12 0 0 0 0.101563,-1.427734 12,12 0 0 0 -1.001953,-4.789063 z" transform="translate(0,289.0625)"/>
+              </svg>
             </span>
             <span className="font-heading text-xl font-bold tracking-tight">Throttlr</span>
           </Link>
