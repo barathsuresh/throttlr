@@ -58,6 +58,7 @@ public class RuleService {
         app.setRuleCount(app.getRuleCount() + 1);
         appRepository.save(app);
         ruleCacheService.put(savedRule);
+        deletePatternCacheIfNeeded(appId, savedRule.getClientId());
 
         return toRuleResponse(savedRule);
     }
@@ -105,6 +106,7 @@ public class RuleService {
 
         ruleRepository.delete(rule);
         ruleCacheService.delete(appId, clientId);
+        deletePatternCacheIfNeeded(appId, clientId);
 
         app.setRuleCount(Math.max(0, app.getRuleCount() - 1));
         appRepository.save(app);
@@ -112,6 +114,9 @@ public class RuleService {
 
     public RuleResponse updateRule(String accountId, String appId, String clientId, CreateRuleRequest request) {
         validateCreateRuleRequest(request);
+        if (!clientId.equals(request.clientId().trim())) {
+            throw new IllegalArgumentException("Client id cannot be changed");
+        }
 
         appRepository.findByIdAndAccountId(appId, accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("App not found"));
@@ -126,7 +131,14 @@ public class RuleService {
 
         Rule savedRule = ruleRepository.save(rule);
         ruleCacheService.put(savedRule);
+        deletePatternCacheIfNeeded(appId, savedRule.getClientId());
         return toRuleResponse(savedRule);
+    }
+
+    private void deletePatternCacheIfNeeded(String appId, String clientId) {
+        if (PatternMatcher.isPattern(clientId)) {
+            ruleCacheService.deletePatternCache(appId);
+        }
     }
 
     private void validateCreateRuleRequest(CreateRuleRequest request) {
@@ -141,6 +153,9 @@ public class RuleService {
                 request.clientId(),
                 InputLimits.CLIENT_ID_MAX_LENGTH,
                 "Client id must be at most 200 characters");
+        if (PatternMatcher.isPattern(request.clientId())) {
+            PatternMatcher.validatePattern(request.clientId());
+        }
 
         if (request.algorithm() == null) {
             throw new IllegalArgumentException("Algorithm is required");
