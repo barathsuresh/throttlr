@@ -90,7 +90,7 @@ frontend/
 
 | Hook | Query key | Endpoint | Notes |
 |---|---|---|---|
-| `useBackendHealth()` | `['health']` | `GET /api/health` | Refetch every 3s until 200, then stop |
+| `useBackendHealth()` | `['health']` | `GET /api/health` | Single check on mount; only polls every 3s if initial check fails; stops on first 200 |
 | `useApps(page)` | `['apps', page]` | `GET /api/apps?page&size=10` | |
 | `useRules(appId, page)` | `['rules', appId, page]` | `GET /api/apps/:id/rules` | |
 | `useAnalytics(appId)` | `['analytics', appId]` | `GET /api/apps/:id/analytics` | |
@@ -143,11 +143,22 @@ Breadcrumb back to `/dashboard`. Paginated rules table: clientId, algorithm badg
 
 ## Cold-Start Handling
 
-`useBackendHealth` polls `GET /api/health` every 3s while backend is unreachable. Behaviour:
-- `BackendHealthBanner` renders at top of every page with spinner: "Backend is waking up on Cloud Run…"
+`useBackendHealth` makes a single `GET /api/health` on mount. Behaviour:
+- If initial check returns 200 → backend alive, no banner shown, no further polling (warm path = 1 request total)
+- If initial check fails → `BackendHealthBanner` renders at top of every page with spinner: "Backend is waking up on Cloud Run…" and polling begins every 3s
+- Polling stops immediately on first 200 — banner auto-dismisses
 - All React Query data hooks use `enabled: isBackendAlive` — no API calls fire until health returns 200
-- Banner auto-dismisses once backend responds
 - Applies to all pages including `/demo` — public users hit this cold most often
+
+```ts
+useQuery({
+  queryKey: ['health'],
+  queryFn: fetchHealth,
+  retry: false,
+  refetchInterval: (query) =>
+    query.state.status === 'success' ? false : 3000,
+})
+```
 
 ## Error Handling
 
