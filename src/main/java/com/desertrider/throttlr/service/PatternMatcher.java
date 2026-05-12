@@ -46,7 +46,9 @@ public class PatternMatcher {
     public Optional<Rule> findBestMatch(List<Rule> patterns, String clientId) {
         return patterns.stream()
                 .filter(rule -> matches(rule.getClientId(), clientId))
-                .max(Comparator.comparingInt(rule -> literalLength(rule.getClientId())));
+                .max(Comparator
+                        .comparingInt((Rule rule) -> literalLength(rule.getClientId()))
+                        .thenComparing(Rule::getClientId));
     }
 
     private boolean matches(String pattern, String clientId) {
@@ -74,7 +76,9 @@ public class PatternMatcher {
     private static int literalLength(String pattern) {
         int count = 0;
         for (char c : pattern.toCharArray()) {
-            if (c != '*') count++;
+            if (c != '*') {
+                count++;
+            }
         }
         return count;
     }

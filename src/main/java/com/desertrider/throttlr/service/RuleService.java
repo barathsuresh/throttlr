@@ -19,7 +19,6 @@ import com.desertrider.throttlr.model.Rule;
 import com.desertrider.throttlr.repository.AppRepository;
 import com.desertrider.throttlr.repository.RuleRepository;
 import com.desertrider.throttlr.service.cache.RuleCacheService;
-import com.desertrider.throttlr.service.PatternMatcher;
 import com.desertrider.throttlr.validation.InputLimits;
 
 import lombok.RequiredArgsConstructor;
@@ -115,6 +114,9 @@ public class RuleService {
 
     public RuleResponse updateRule(String accountId, String appId, String clientId, CreateRuleRequest request) {
         validateCreateRuleRequest(request);
+        if (!clientId.equals(request.clientId().trim())) {
+            throw new IllegalArgumentException("Client id cannot be changed");
+        }
 
         appRepository.findByIdAndAccountId(appId, accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("App not found"));

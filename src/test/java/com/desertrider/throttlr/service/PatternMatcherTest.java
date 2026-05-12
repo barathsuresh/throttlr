@@ -60,6 +60,16 @@ class PatternMatcherTest {
     }
 
     @Test
+    void equalSpecificityPatternsUseDeterministicTieBreaker() {
+        Rule first = rule("user:a*");
+        Rule second = rule("user:*b");
+
+        Optional<Rule> result = matcher.findBestMatch(List.of(first, second), "user:ab");
+
+        assertEquals(first, result.orElseThrow());
+    }
+
+    @Test
     void catchAllLosesToAnyMoreSpecificPattern() {
         Rule catchAll = rule("*");
         Rule prefixed = rule("user:*");

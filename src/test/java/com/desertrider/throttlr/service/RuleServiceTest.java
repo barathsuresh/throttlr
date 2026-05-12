@@ -114,6 +114,21 @@ class RuleServiceTest {
     }
 
     @Test
+    void updateRuleRejectsClientIdChange() {
+        RuleService ruleService = new RuleService(null, null, null);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> ruleService.updateRule(
+                        "account-1",
+                        "app-1",
+                        "user:123",
+                        new CreateRuleRequest("user:456", Algorithm.FIXED_WINDOW, 10, 60_000)));
+
+        assertEquals("Client id cannot be changed", exception.getMessage());
+    }
+
+    @Test
     void createRuleRejectsPatternWithRegexSpecialChars() {
         RuleService ruleService = new RuleService(null, null, null);
 
@@ -317,7 +332,6 @@ class RuleServiceTest {
     }
 
     private static final class TrackingRuleCacheService implements RuleCacheService {
-        private Rule cachedRule;
         private String deletedPatternCacheAppId;
 
         @Override
@@ -332,7 +346,6 @@ class RuleServiceTest {
 
         @Override
         public void put(Rule rule) {
-            cachedRule = rule;
         }
 
         @Override
