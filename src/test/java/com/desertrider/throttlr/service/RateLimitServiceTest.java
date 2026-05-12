@@ -1,6 +1,7 @@
 package com.desertrider.throttlr.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,7 +27,7 @@ import com.desertrider.throttlr.service.limiter.TokenBucketRateLimiter;
 class RateLimitServiceTest {
     @Test
     void checkRejectsOverlongClientId() {
-        RateLimitService rateLimitService = new RateLimitService(null, null, null, null, null, null);
+        RateLimitService rateLimitService = new RateLimitService(null, null, null, null, null, null, null);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -69,7 +70,8 @@ class RateLimitServiceTest {
                 fixedWindowRateLimiter,
                 tokenBucketRateLimiter,
                 slidingWindowRateLimiter,
-                analyticsService);
+                analyticsService,
+                new PatternMatcher());
 
         CheckResponse response = rateLimitService.check(appKey, new CheckRequest("user:123"));
 
@@ -175,5 +177,129 @@ class RateLimitServiceTest {
             this.rule = rule;
             return new CheckResponse(true, 99, 60_000, 0);
         }
+    }
+
+    @Test
+    void patternRuleAppliedOnExactMiss() {
+        String appKey = "throttlr_live_test-pattern";
+
+        RecordingAppKeyCacheService appKeyCacheService = new RecordingAppKeyCacheService();
+        AppKeyService appKeyService = new AppKeyService(
+                Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8(),
+                "test-app-key-secret",
+                appKeyCacheService);
+
+        App app = App.builder()
+                .id("app-pattern")
+                .apiKeyLookup(appKeyService.createLookup(appKey))
+                .apiKeyHash(appKeyService.hash(appKey))
+                .build();
+        appKeyCacheService.app = app;
+
+        Rule patternRule = Rule.builder()
+                .id("rule-pat")
+                .appId(app.getId())
+                .clientId("user:*")
+                .algorithm(Algorithm.FIXED_WINDOW)
+                .limitPerWindow(10)
+                .windowMs(60_000)
+                .build();
+
+        PatternRuleCacheService ruleCacheService = new PatternRuleCacheService(patternRule);
+        RecordingFixedWindowRateLimiter fixedWindowRateLimiter = new RecordingFixedWindowRateLimiter();
+        RecordingTokenBucketRateLimiter tokenBucketRateLimiter = new RecordingTokenBucketRateLimiter();
+        RecordingSlidingWindowRateLimiter slidingWindowRateLimiter = new RecordingSlidingWindowRateLimiter();
+        RecordingAnalyticsService analyticsService = new RecordingAnalyticsService();
+
+        RateLimitService rateLimitService = new RateLimitService(
+                appKeyService,
+                ruleCacheService,
+                fixedWindowRateLimiter,
+                tokenBucketRateLimiter,
+                slidingWindowRateLimiter,
+                analyticsService,
+                new PatternMatcher());
+
+        rateLimitService.check(appKey, new CheckRequest("user:abc123"));
+
+        assertNotNull(fixedWindowRateLimiter.rule);
+        assertEquals("user:abc123", fixedWindowRateLimiter.rule.getClientId());
+        assertEquals(10, fixedWindowRateLimiter.rule.getLimitPerWindow());
+    }
+
+    @Test
+    void catchAllPatternMatchesWhenNoExactRule() {
+        String appKey = "throttlr_live_test-catchall";
+
+        RecordingAppKeyCacheService appKeyCacheService2 = new RecordingAppKeyCacheService();
+        AppKeyService appKeyService2 = new AppKeyService(
+                Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8(),
+                "test-app-key-secret",
+                appKeyCacheService2);
+
+        App app = App.builder()
+                .id("app-catchall")
+                .apiKeyLookup(appKeyService2.createLookup(appKey))
+                .apiKeyHash(appKeyService2.hash(appKey))
+                .build();
+        appKeyCacheService2.app = app;
+
+        Rule catchAll = Rule.builder()
+                .id("rule-catch")
+                .appId(app.getId())
+                .clientId("*")
+                .algorithm(Algorithm.FIXED_WINDOW)
+                .limitPerWindow(5)
+                .windowMs(30_000)
+                .build();
+
+        PatternRuleCacheService ruleCacheService = new PatternRuleCacheService(catchAll);
+        RecordingFixedWindowRateLimiter fixedWindowRateLimiter = new RecordingFixedWindowRateLimiter();
+        RecordingTokenBucketRateLimiter tokenBucketRateLimiter = new RecordingTokenBucketRateLimiter();
+        RecordingSlidingWindowRateLimiter slidingWindowRateLimiter = new RecordingSlidingWindowRateLimiter();
+        RecordingAnalyticsService analyticsService = new RecordingAnalyticsService();
+
+        RateLimitService rateLimitService = new RateLimitService(
+                appKeyService2,
+                ruleCacheService,
+                fixedWindowRateLimiter,
+                tokenBucketRateLimiter,
+                slidingWindowRateLimiter,
+                analyticsService,
+                new PatternMatcher());
+
+        CheckResponse response = rateLimitService.check(appKey, new CheckRequest("ip:203.0.113.10"));
+
+        assertNotNull(fixedWindowRateLimiter.rule);
+        assertEquals("ip:203.0.113.10", fixedWindowRateLimiter.rule.getClientId());
+        assertEquals(5, fixedWindowRateLimiter.rule.getLimitPerWindow());
+        assertTrue(response.allowed());
+    }
+
+    private static final class PatternRuleCacheService implements RuleCacheService {
+        private final Rule patternRule;
+
+        private PatternRuleCacheService(Rule patternRule) {
+            this.patternRule = patternRule;
+        }
+
+        @Override
+        public Optional<Rule> findByAppIdAndClientId(String appId, String clientId) {
+            return Optional.empty();
+        }
+
+        @Override
+        public List<Rule> findPatternsByAppId(String appId) {
+            return List.of(patternRule);
+        }
+
+        @Override
+        public void put(Rule rule) {}
+
+        @Override
+        public void delete(String appId, String clientId) {}
+
+        @Override
+        public void deletePatternCache(String appId) {}
     }
 }

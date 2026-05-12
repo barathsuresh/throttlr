@@ -26,6 +26,7 @@ public class RateLimitService {
     private final TokenBucketRateLimiter tokenBucketRateLimiter;
     private final SlidingWindowRateLimiter slidingWindowRateLimiter;
     private final AnalyticsService analyticsService;
+    private final PatternMatcher patternMatcher;
 
     public CheckResponse check(String appKey, CheckRequest request) {
         if (request == null || !StringUtils.hasText(request.clientId())) {
@@ -40,11 +41,28 @@ public class RateLimitService {
         String clientId = request.clientId().trim();
 
         CheckResponse response = ruleCacheService.findByAppIdAndClientId(app.getId(), clientId)
+                .or(() -> patternMatcher
+                        .findBestMatch(ruleCacheService.findPatternsByAppId(app.getId()), clientId)
+                        .map(pattern -> synthesizeRule(pattern, clientId)))
                 .map(this::checkConfiguredRule)
                 .orElseGet(this::allowWithoutRule);
 
         analyticsService.record(app, clientId, response);
         return response;
+    }
+
+    private Rule synthesizeRule(Rule pattern, String actualClientId) {
+        return Rule.builder()
+                .id(pattern.getId())
+                .appId(pattern.getAppId())
+                .accountId(pattern.getAccountId())
+                .clientId(actualClientId)
+                .algorithm(pattern.getAlgorithm())
+                .limitPerWindow(pattern.getLimitPerWindow())
+                .windowMs(pattern.getWindowMs())
+                .createdAt(pattern.getCreatedAt())
+                .updatedAt(pattern.getUpdatedAt())
+                .build();
     }
 
     private CheckResponse checkConfiguredRule(Rule rule) {

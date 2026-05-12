@@ -1,9 +1,11 @@
 package com.desertrider.throttlr.service;
 
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
@@ -17,7 +19,13 @@ public class PatternMatcher {
         '+', '?', '[', ']', '(', ')', '{', '}', '^', '$', '|', '\\'
     };
 
-    private final ConcurrentHashMap<String, Pattern> patternCache = new ConcurrentHashMap<>();
+    private final Map<String, Pattern> patternCache = Collections.synchronizedMap(
+            new LinkedHashMap<>(1000, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Pattern> eldest) {
+                    return size() > 1000;
+                }
+            });
 
     public static boolean isPattern(String clientId) {
         return clientId != null && clientId.contains("*");
@@ -42,8 +50,11 @@ public class PatternMatcher {
     }
 
     private boolean matches(String pattern, String clientId) {
-        Pattern compiled = patternCache.computeIfAbsent(pattern,
-                p -> Pattern.compile(buildRegex(p)));
+        Pattern compiled;
+        synchronized (patternCache) {
+            compiled = patternCache.computeIfAbsent(pattern,
+                    p -> Pattern.compile(buildRegex(p)));
+        }
         return compiled.matcher(clientId).matches();
     }
 
