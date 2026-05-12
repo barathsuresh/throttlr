@@ -1,12 +1,14 @@
 package com.desertrider.throttlr.service;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.desertrider.throttlr.dto.response.DemoAppResponse;
+import com.desertrider.throttlr.dto.response.DemoAppResponse.DemoRuleConfig;
 import com.desertrider.throttlr.model.App;
 import com.desertrider.throttlr.model.Rule;
 import com.desertrider.throttlr.model.enums.Algorithm;
@@ -16,9 +18,13 @@ import com.desertrider.throttlr.service.cache.RuleCacheService;
 @Service
 public class DemoService {
     private static final String DEMO_ACCOUNT_ID = "demo";
-    private static final String DEMO_CLIENT_ID = "demo-user";
     private static final int DEMO_LIMIT = 10;
     private static final long DEMO_WINDOW_MS = 60_000;
+
+    private static final List<Algorithm> DEMO_ALGORITHMS = List.of(
+            Algorithm.FIXED_WINDOW,
+            Algorithm.TOKEN_BUCKET,
+            Algorithm.SLIDING_WINDOW);
 
     private final AppKeyService appKeyService;
     private final AppKeyCacheService appKeyCacheService;
@@ -47,32 +53,34 @@ public class DemoService {
                 .name("Temporary Demo App")
                 .apiKeyLookup(appKeyService.createLookup(appKey))
                 .apiKeyHash(appKeyService.hash(appKey))
-                .ruleCount(1)
+                .ruleCount(DEMO_ALGORITHMS.size())
                 .createdAt(now)
-                .build();
-
-        Rule rule = Rule.builder()
-                .id("demo-rule-" + UUID.randomUUID())
-                .appId(appId)
-                .accountId(DEMO_ACCOUNT_ID)
-                .clientId(DEMO_CLIENT_ID)
-                .algorithm(Algorithm.SLIDING_WINDOW)
-                .limitPerWindow(DEMO_LIMIT)
-                .windowMs(DEMO_WINDOW_MS)
-                .createdAt(now)
-                .updatedAt(now)
                 .build();
 
         appKeyCacheService.put(app, ttl);
-        ruleCacheService.put(rule, ttl);
+
+        List<DemoRuleConfig> ruleConfigs = DEMO_ALGORITHMS.stream().map(algorithm -> {
+            String clientId = "demo-user-" + algorithm.name().toLowerCase().replace("_", "-");
+            Rule rule = Rule.builder()
+                    .id("demo-rule-" + UUID.randomUUID())
+                    .appId(appId)
+                    .accountId(DEMO_ACCOUNT_ID)
+                    .clientId(clientId)
+                    .algorithm(algorithm)
+                    .limitPerWindow(DEMO_LIMIT)
+                    .windowMs(DEMO_WINDOW_MS)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            ruleCacheService.put(rule, ttl);
+            return new DemoRuleConfig(clientId, algorithm.name(), DEMO_LIMIT, DEMO_WINDOW_MS);
+        }).toList();
 
         return new DemoAppResponse(
                 appId,
                 appKey,
-                DEMO_CLIENT_ID,
-                DEMO_LIMIT,
-                DEMO_WINDOW_MS,
                 ttl.toMillis(),
+                ruleConfigs,
                 "Temporary demo app key created. It expires automatically.");
     }
 }

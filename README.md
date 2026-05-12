@@ -371,15 +371,17 @@ Response `201`:
 {
   "appId": "demo-9449c9ca-4523-4694-9107-ab582ff0ce39",
   "appKey": "throttlr_live_...",
-  "clientId": "demo-user",
-  "limitPerWindow": 10,
-  "windowMs": 60000,
   "expiresInMs": 900000,
+  "rules": [
+    { "clientId": "demo-user-fixed-window",   "algorithm": "FIXED_WINDOW",   "limitPerWindow": 10, "windowMs": 60000 },
+    { "clientId": "demo-user-token-bucket",   "algorithm": "TOKEN_BUCKET",   "limitPerWindow": 10, "windowMs": 60000 },
+    { "clientId": "demo-user-sliding-window", "algorithm": "SLIDING_WINDOW", "limitPerWindow": 10, "windowMs": 60000 }
+  ],
   "message": "Temporary demo app key created. It expires automatically."
 }
 ```
 
-Use the returned `appKey` and `clientId` with `/api/check`.
+Use the returned `appKey` with any `clientId` from `rules` to test that algorithm via `/api/check`.
 
 ## Analytics API
 
