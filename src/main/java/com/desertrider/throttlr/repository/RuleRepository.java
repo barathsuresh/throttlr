@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import com.desertrider.throttlr.model.Rule;
 
@@ -21,4 +22,7 @@ public interface RuleRepository extends MongoRepository<Rule, String> {
     void deleteByAppId(String appId);
 
     long countByAppId(String appId);
+
+    @Query("{ 'appId': ?0, 'clientId': { $regex: '\\\\*' } }")
+    List<Rule> findPatternsByAppId(String appId);
 }
