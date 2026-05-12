@@ -8,6 +8,7 @@ import { Register } from '@/pages/Register'
 import { Dashboard } from '@/pages/Dashboard'
 import { AppRules } from '@/pages/AppRules'
 import { Demo } from '@/pages/Demo'
+import { Docs } from '@/pages/Docs'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return getToken() ? <>{children}</> : <Navigate to="/login" replace />
@@ -28,6 +29,7 @@ export function AppRouter() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/demo" element={<Demo />} />
+      <Route path="/docs" element={<Docs />} />
       <Route
         path="/login"
         element={<PublicOnlyRoute><Login /></PublicOnlyRoute>}

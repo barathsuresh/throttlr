@@ -12,15 +12,23 @@ export function AnalyticsPanel({ appId }: Props) {
   if (!data) return null
 
   return (
-    <div className="flex gap-3 text-sm py-2">
-      <span className="text-muted-foreground">Current hour:</span>
-      <Badge variant="outline">Total {data.total}</Badge>
-      <Badge variant="outline" className="text-green-700 border-green-300">
-        Allowed {data.allowed}
-      </Badge>
-      <Badge variant="outline" className="text-red-700 border-red-300">
-        Blocked {data.blocked}
-      </Badge>
+    <div className="grid gap-3 rounded-2xl border border-slate-900/10 bg-white/60 p-3 text-sm sm:grid-cols-3">
+      <div>
+        <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">Total</p>
+        <Badge variant="outline" className="mt-2 bg-white">{data.total}</Badge>
+      </div>
+      <div>
+        <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">Allowed</p>
+        <Badge variant="outline" className="mt-2 border-emerald-300 bg-emerald-50 text-emerald-800">
+          {data.allowed}
+        </Badge>
+      </div>
+      <div>
+        <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">Blocked</p>
+        <Badge variant="outline" className="mt-2 border-red-300 bg-red-50 text-red-800">
+          {data.blocked}
+        </Badge>
+      </div>
     </div>
   )
 }

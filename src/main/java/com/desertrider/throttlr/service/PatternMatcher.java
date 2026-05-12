@@ -35,6 +35,9 @@ public class PatternMatcher {
         if (clientId == null) {
             throw new IllegalArgumentException("Pattern clientId must not be null");
         }
+        if (clientId.contains("**")) {
+            throw new IllegalArgumentException("Pattern clientId cannot contain consecutive wildcards: **");
+        }
         for (char c : FORBIDDEN) {
             if (clientId.indexOf(c) >= 0) {
                 throw new IllegalArgumentException(

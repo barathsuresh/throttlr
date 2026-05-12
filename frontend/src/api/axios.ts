@@ -2,8 +2,10 @@ import axios from 'axios'
 import { getToken, clearToken } from '@/lib/token'
 import { navigateTo } from '@/lib/navigate'
 
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8080'
+
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8080',
+  baseURL: API_BASE_URL,
 })
 
 instance.interceptors.request.use((config) => {

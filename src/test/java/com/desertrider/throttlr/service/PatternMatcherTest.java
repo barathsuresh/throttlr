@@ -111,6 +111,16 @@ class PatternMatcherTest {
                 () -> PatternMatcher.validatePattern("user:{abc}*"));
     }
 
+    @Test
+    void validatePatternRejectsConsecutiveWildcards() {
+        assertThrows(IllegalArgumentException.class,
+                () -> PatternMatcher.validatePattern("user:**"));
+        assertThrows(IllegalArgumentException.class,
+                () -> PatternMatcher.validatePattern("**"));
+        assertThrows(IllegalArgumentException.class,
+                () -> PatternMatcher.validatePattern("user:**:free"));
+    }
+
     private Rule rule(String clientId) {
         return Rule.builder()
                 .clientId(clientId)

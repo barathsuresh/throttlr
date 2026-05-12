@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft, Plus, Route } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { RuleForm } from '@/components/RuleForm'
+import { AppShell } from '@/components/AppShell'
 import { useRules } from '@/hooks/useRules'
 import { toast } from 'sonner'
 import type { CreateRuleRequest, RuleResponse } from '@/types'
 
 const ALGORITHM_COLORS: Record<string, string> = {
-  FIXED_WINDOW: 'bg-blue-100 text-blue-800',
-  TOKEN_BUCKET: 'bg-purple-100 text-purple-800',
-  SLIDING_WINDOW: 'bg-green-100 text-green-800',
+  FIXED_WINDOW: 'border-cyan-300 bg-cyan-50 text-cyan-900',
+  TOKEN_BUCKET: 'border-amber-300 bg-amber-50 text-amber-900',
+  SLIDING_WINDOW: 'border-emerald-300 bg-emerald-50 text-emerald-900',
 }
 
 export function AppRules() {
@@ -44,78 +46,104 @@ export function AppRules() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b bg-white px-6 py-4 flex items-center gap-4">
-        <Link to="/dashboard" className="text-sm text-muted-foreground hover:underline">
-          ← Dashboard
-        </Link>
-        <span className="font-semibold">Rules</span>
-        <span className="text-xs text-muted-foreground font-mono">{appId}</span>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-4 py-8 space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Rules</h1>
+    <AppShell
+      eyebrow="Rule Builder"
+      title="Rate-limit rules"
+      description="Rules decide how each clientId is limited. Exact matches win first; wildcard patterns cover dynamic identities."
+      action={
+        <div className="flex flex-wrap gap-2">
+          <Link to="/dashboard">
+            <Button variant="outline" className="h-11 rounded-2xl bg-white/60">
+              <ArrowLeft className="mr-1 size-4" />
+              Dashboard
+            </Button>
+          </Link>
           {!adding && !editing && (
-            <Button size="sm" onClick={() => setAdding(true)}>
-              Add Rule
+            <Button className="h-11 rounded-2xl px-5" onClick={() => setAdding(true)}>
+              <Plus className="mr-1 size-4" />
+              Add rule
             </Button>
           )}
         </div>
+      }
+    >
+      <div className="mb-6 glass-panel rounded-3xl p-4">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500">App ID</p>
+        <p className="mt-2 break-all font-mono text-sm text-slate-900">{appId}</p>
+      </div>
 
-        {adding && (
-          <RuleForm
-            onSubmit={handleCreate}
-            onCancel={() => setAdding(false)}
-            pending={createPending}
-          />
-        )}
-
-        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
-
-        {rules?.items.map((rule) =>
-          editing?.ruleId === rule.ruleId ? (
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="space-y-4">
+          {adding && (
             <RuleForm
-              key={rule.ruleId}
+              onSubmit={handleCreate}
+              onCancel={() => setAdding(false)}
+              pending={createPending}
+            />
+          )}
+
+          {editing && (
+            <RuleForm
               onSubmit={handleUpdate}
               onCancel={() => setEditing(null)}
               pending={updatePending}
-              initial={rule}
+              initial={editing}
             />
-          ) : (
-            <div key={rule.ruleId} className="border rounded-md p-4 bg-white space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-sm">{rule.clientId}</span>
+          )}
+
+          {!adding && !editing && (
+            <div className="ink-panel rounded-3xl p-5">
+              <p className="font-heading text-2xl font-bold">Pattern matching</p>
+              <p className="mt-3 text-sm leading-6 text-slate-300">
+                Use <code>user:*</code> for all users, <code>ip:10.0.*</code> for a subnet, or <code>*</code> as a catch-all fallback. Throttlr still tracks each actual client independently.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          {isLoading && <p className="text-sm text-slate-600">Loading rules...</p>}
+
+          {rules?.items.map((rule) => (
+            <div key={rule.ruleId} className="glass-panel rounded-3xl p-5 transition hover:-translate-y-0.5 hover:shadow-xl">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-amber-200">
+                    <Route className="size-5" />
+                  </div>
+                  <span className="break-all font-mono text-sm text-slate-950">{rule.clientId}</span>
+                </div>
                 <Badge className={ALGORITHM_COLORS[rule.algorithm] ?? ''} variant="outline">
                   {rule.algorithm.replace(/_/g, ' ')}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {rule.limitPerWindow} req / {rule.windowMs}ms
+              <p className="mt-4 text-sm text-slate-600">
+                {rule.limitPerWindow} requests / {rule.windowMs}ms
               </p>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => setEditing(rule)}>
+              <div className="mt-4 flex gap-2">
+                <Button size="sm" variant="outline" className="rounded-xl bg-white/60" onClick={() => setEditing(rule)}>
                   Edit
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-red-600"
+                  className="rounded-xl text-red-700"
                   onClick={() => handleDelete(rule.clientId)}
                 >
                   Delete
                 </Button>
               </div>
             </div>
-          )
-        )}
+          ))}
 
-        {rules && rules.items.length === 0 && !adding && (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            No rules yet. Add one to start rate limiting.
-          </p>
-        )}
-      </main>
-    </div>
+          {rules && rules.items.length === 0 && !adding && (
+            <div className="glass-panel rounded-[2rem] p-10 text-center">
+              <p className="font-heading text-2xl font-bold">No rules yet</p>
+              <p className="mt-2 text-sm text-slate-600">Add one to start rate limiting this app.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </AppShell>
   )
 }

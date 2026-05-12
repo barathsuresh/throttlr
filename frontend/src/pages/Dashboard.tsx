@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { Boxes, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AppCard } from '@/components/AppCard'
 import { OnetimeSecretModal } from '@/components/OnetimeSecretModal'
+import { AppShell } from '@/components/AppShell'
 import { useApps } from '@/hooks/useApps'
 import { useAuth } from '@/hooks/useAuth'
 import type { AppCreatedResponse } from '@/types'
@@ -42,54 +44,73 @@ export function Dashboard() {
     }
   }
 
+  const totalRules = apps?.items.reduce((sum, app) => sum + app.ruleCount, 0) ?? 0
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b bg-white px-6 py-4 flex items-center justify-between">
-        <span className="font-semibold text-lg">Throttlr</span>
-        <Button variant="ghost" size="sm" onClick={logout}>
-          Log out
-        </Button>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-4 py-8 space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Apps</h1>
-          {!creating && (
-            <Button size="sm" onClick={() => setCreating(true)}>
-              Create App
-            </Button>
-          )}
+    <AppShell
+      eyebrow="Developer Console"
+      title="Apps"
+      description="Create app keys, organize rules, and inspect current-hour analytics from one control surface."
+      onLogout={logout}
+      action={
+        !creating && (
+          <Button className="h-11 rounded-2xl px-5" onClick={() => setCreating(true)}>
+            <Plus className="mr-1 size-4" />
+            Create app
+          </Button>
+        )
+      }
+    >
+      <section className="mb-6 grid gap-4 md:grid-cols-3">
+        <div className="ink-panel rounded-3xl p-5">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-amber-200">Total apps</p>
+          <p className="mt-3 font-heading text-4xl font-black">{apps?.totalItems ?? 0}</p>
         </div>
+        <div className="glass-panel rounded-3xl p-5">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500">Rules tracked</p>
+          <p className="mt-3 font-heading text-4xl font-black">{totalRules}</p>
+        </div>
+        <div className="glass-panel rounded-3xl p-5">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500">Runtime auth</p>
+          <p className="mt-3 text-sm leading-6 text-slate-600">Use app keys for hot-path checks. JWT stays for dashboard-only operations.</p>
+        </div>
+      </section>
 
-        {creating && (
-          <form onSubmit={handleCreate} className="flex gap-2">
-            <Input
-              placeholder="App name"
-              value={appName}
-              onChange={(e) => setAppName(e.target.value)}
-              autoFocus
-            />
-            <Button type="submit" disabled={createPending || !appName.trim()}>
-              {createPending ? 'Creating…' : 'Create'}
-            </Button>
-            <Button type="button" variant="ghost" onClick={() => setCreating(false)}>
-              Cancel
-            </Button>
-          </form>
-        )}
+      {creating && (
+        <form onSubmit={handleCreate} className="glass-panel mb-6 flex flex-col gap-3 rounded-3xl p-4 sm:flex-row">
+          <Input
+            className="h-11 rounded-2xl bg-white/70"
+            placeholder="App name, e.g. Acme Gateway"
+            value={appName}
+            onChange={(e) => setAppName(e.target.value)}
+            autoFocus
+          />
+          <Button className="h-11 rounded-2xl px-5" type="submit" disabled={createPending || !appName.trim()}>
+            {createPending ? 'Creating...' : 'Create'}
+          </Button>
+          <Button className="h-11 rounded-2xl" type="button" variant="ghost" onClick={() => setCreating(false)}>
+            Cancel
+          </Button>
+        </form>
+      )}
 
-        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {isLoading && <p className="text-sm text-slate-600">Loading apps...</p>}
 
+      <div className="grid gap-4 lg:grid-cols-2">
         {apps?.items.map((app) => (
           <AppCard key={app.appId} app={app} onDelete={handleDelete} />
         ))}
+      </div>
 
-        {apps && apps.items.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            No apps yet. Create one to get started.
+      {apps && apps.items.length === 0 && (
+        <div className="glass-panel grid place-items-center rounded-[2rem] p-12 text-center">
+          <Boxes className="mb-4 size-10 text-slate-500" />
+          <p className="font-heading text-2xl font-bold">No apps yet</p>
+          <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">
+            Create your first app to receive a one-time app key and start adding rate-limit rules.
           </p>
-        )}
-      </main>
+        </div>
+      )}
 
       {newApp && (
         <OnetimeSecretModal
@@ -101,6 +122,6 @@ export function Dashboard() {
           onConfirmed={() => setNewApp(null)}
         />
       )}
-    </div>
+    </AppShell>
   )
 }

@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
 import { queryClient } from '@/lib/queryClient'
@@ -19,10 +19,10 @@ function AppInner() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <HashRouter>
         <AppInner />
         <Toaster richColors position="bottom-right" />
-      </BrowserRouter>
+      </HashRouter>
     </QueryClientProvider>
   )
 }
