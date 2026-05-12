@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -121,6 +122,15 @@ class RateLimitServiceTest {
 
         @Override
         public void delete(String appId, String clientId) {
+        }
+
+        @Override
+        public List<Rule> findPatternsByAppId(String appId) {
+            return List.of();
+        }
+
+        @Override
+        public void deletePatternCache(String appId) {
         }
     }
 

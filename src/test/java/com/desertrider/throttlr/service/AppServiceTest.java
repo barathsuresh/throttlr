@@ -148,5 +148,14 @@ class AppServiceTest {
             deletedAppId = appId;
             deletedClientId = clientId;
         }
+
+        @Override
+        public List<Rule> findPatternsByAppId(String appId) {
+            return List.of();
+        }
+
+        @Override
+        public void deletePatternCache(String appId) {
+        }
     }
 }

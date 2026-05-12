@@ -19,6 +19,7 @@ import com.desertrider.throttlr.model.Rule;
 import com.desertrider.throttlr.repository.AppRepository;
 import com.desertrider.throttlr.repository.RuleRepository;
 import com.desertrider.throttlr.service.cache.RuleCacheService;
+import com.desertrider.throttlr.service.PatternMatcher;
 import com.desertrider.throttlr.validation.InputLimits;
 
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,7 @@ public class RuleService {
         app.setRuleCount(app.getRuleCount() + 1);
         appRepository.save(app);
         ruleCacheService.put(savedRule);
+        deletePatternCacheIfNeeded(appId, savedRule.getClientId());
 
         return toRuleResponse(savedRule);
     }
@@ -105,6 +107,7 @@ public class RuleService {
 
         ruleRepository.delete(rule);
         ruleCacheService.delete(appId, clientId);
+        deletePatternCacheIfNeeded(appId, clientId);
 
         app.setRuleCount(Math.max(0, app.getRuleCount() - 1));
         appRepository.save(app);
@@ -126,7 +129,14 @@ public class RuleService {
 
         Rule savedRule = ruleRepository.save(rule);
         ruleCacheService.put(savedRule);
+        deletePatternCacheIfNeeded(appId, savedRule.getClientId());
         return toRuleResponse(savedRule);
+    }
+
+    private void deletePatternCacheIfNeeded(String appId, String clientId) {
+        if (PatternMatcher.isPattern(clientId)) {
+            ruleCacheService.deletePatternCache(appId);
+        }
     }
 
     private void validateCreateRuleRequest(CreateRuleRequest request) {
@@ -141,6 +151,9 @@ public class RuleService {
                 request.clientId(),
                 InputLimits.CLIENT_ID_MAX_LENGTH,
                 "Client id must be at most 200 characters");
+        if (PatternMatcher.isPattern(request.clientId())) {
+            PatternMatcher.validatePattern(request.clientId());
+        }
 
         if (request.algorithm() == null) {
             throw new IllegalArgumentException("Algorithm is required");
