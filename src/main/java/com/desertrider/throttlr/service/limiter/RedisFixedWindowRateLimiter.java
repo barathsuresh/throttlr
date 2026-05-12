@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.desertrider.throttlr.dto.response.CheckResponse;
 import com.desertrider.throttlr.model.Rule;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class RedisFixedWindowRateLimiter implements FixedWindowRateLimiter {
     private final RedisTemplate<String, String> redisTemplate;
@@ -30,6 +32,8 @@ public class RedisFixedWindowRateLimiter implements FixedWindowRateLimiter {
                 String.valueOf(rule.getWindowMs()));
 
         if (result == null || result.size() != 4) {
+            log.error("[RATE-LIMIT] Invalid response from Redis fixed-window script - appId: [{}], clientId: [{}], result: {}",
+                    rule.getAppId(), rule.getClientId(), result);
             throw new IllegalStateException("Invalid Redis rate limit response");
         }
 

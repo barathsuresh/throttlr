@@ -8,6 +8,8 @@ import java.util.Base64;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import com.desertrider.throttlr.validation.InputLimits;
 
 @Service
 public class AppKeyService {
+    private static final Logger log = LoggerFactory.getLogger(AppKeyService.class);
     private static final String KEY_PREFIX = "throttlr_live_";
 
     private final PasswordEncoder passwordEncoder;
@@ -72,6 +75,7 @@ public class AppKeyService {
 
     public App validateAppKey(String appKey) {
         if (!StringUtils.hasText(appKey)) {
+            log.warn("[APP-KEY] Validation failed - app key missing");
             throw new UnauthorizedException("App key is required");
         }
         InputLimits.requireMaxLength(
@@ -80,9 +84,13 @@ public class AppKeyService {
                 "App key must be at most 500 characters");
 
         App app = appKeyCacheService.findByLookup(createLookup(appKey))
-                .orElseThrow(() -> new UnauthorizedException("Invalid app key"));
+                .orElseThrow(() -> {
+                    log.warn("[APP-KEY] Validation failed - app key not found");
+                    return new UnauthorizedException("Invalid app key");
+                });
 
         if (!matches(appKey, app.getApiKeyHash())) {
+            log.warn("[APP-KEY] Validation failed - hash mismatch for appId: [{}]", app.getId());
             throw new UnauthorizedException("Invalid app key");
         }
 

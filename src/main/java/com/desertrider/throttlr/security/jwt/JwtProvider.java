@@ -36,7 +36,7 @@ public class JwtProvider {
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
-            log.debug("[JWT] Extracting JWT from Authorization header: {}", tokenPreview(header));
+            log.debug("[JWT] Extracting JWT from Authorization header");
             return header.substring(7);
         }
         return null;
@@ -58,16 +58,15 @@ public class JwtProvider {
             log.debug("[JWT] JWT token validation successful");
             return true; // Token is valid
         } catch (MalformedJwtException e) {
-            log.warn("[JWT] JWT token validation failed - error: MalformedJwtException, message: {}", e.getMessage());
+            log.warn("[JWT] Token validation failed - malformed token");
         } catch (ExpiredJwtException e) {
-            log.warn("[JWT] JWT token validation failed - error: ExpiredJwtException, message: {}", e.getMessage());
+            log.warn("[JWT] Token validation failed - token expired");
         } catch (UnsupportedJwtException e) {
-            log.warn("[JWT] JWT token validation failed - error: UnsupportedJwtException, message: {}", e.getMessage());
+            log.warn("[JWT] Token validation failed - unsupported token");
         } catch (IllegalArgumentException e) {
-            log.warn("[JWT] JWT token validation failed - error: IllegalArgumentException, message: {}",
-                    e.getMessage());
+            log.warn("[JWT] Token validation failed - empty or null token");
         } catch (Exception e) {
-            log.error("[JWT] Unexpected error during JWT validation - error: {}", e.getMessage(), e);
+            log.error("[JWT] Unexpected error during token validation", e);
         }
         return false; // Token validation failed
     }

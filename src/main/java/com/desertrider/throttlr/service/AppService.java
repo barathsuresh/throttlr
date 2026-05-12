@@ -22,8 +22,10 @@ import com.desertrider.throttlr.service.cache.RuleCacheService;
 import com.desertrider.throttlr.validation.InputLimits;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AppService {
     private final AppRepository appRepository;
@@ -57,6 +59,8 @@ public class AppService {
 
         App savedApp = appRepository.save(app);
         appKeyCacheService.put(savedApp);
+        log.info("[APP] App created - accountId: [{}], appId: [{}], name: [{}]",
+                accountId, savedApp.getId(), savedApp.getName());
 
         return new AppCreatedResponse(
                 savedApp.getId(),
@@ -105,6 +109,7 @@ public class AppService {
         appKeyCacheService.delete(app.getApiKeyLookup());
         ruleRepository.deleteByAppId(app.getId());
         appRepository.delete(app);
+        log.info("[APP] App deleted - accountId: [{}], appId: [{}]", accountId, appId);
     }
 
     private AppResponse toAppResponse(App app) {

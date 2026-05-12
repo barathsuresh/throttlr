@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import com.desertrider.throttlr.dto.response.CheckResponse;
 import com.desertrider.throttlr.model.Rule;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class RedisSlidingWindowRateLimiter implements SlidingWindowRateLimiter {
     private final RedisTemplate<String, String> redisTemplate;
@@ -33,6 +35,8 @@ public class RedisSlidingWindowRateLimiter implements SlidingWindowRateLimiter {
                 UUID.randomUUID().toString());
 
         if (result == null || result.size() != 4) {
+            log.error("[RATE-LIMIT] Invalid response from Redis sliding-window script - appId: [{}], clientId: [{}], result: {}",
+                    rule.getAppId(), rule.getClientId(), result);
             throw new IllegalStateException("Invalid Redis rate limit response");
         }
 

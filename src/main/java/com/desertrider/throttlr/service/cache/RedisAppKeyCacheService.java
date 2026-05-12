@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import com.desertrider.throttlr.model.App;
 import com.desertrider.throttlr.repository.AppRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class RedisAppKeyCacheService implements AppKeyCacheService {
     private final RedisTemplate<String, String> redisTemplate;
@@ -47,8 +49,8 @@ public class RedisAppKeyCacheService implements AppKeyCacheService {
     public void put(App app, Duration ttl) {
         try {
             redisTemplate.opsForValue().set(redisKey(app.getApiKeyLookup()), objectMapper.writeValueAsString(app), ttl);
-        } catch (Exception ignored) {
-            // Cache failures should not break the control plane or runtime auth path.
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to write app key to Redis - appId: [{}]", app.getId(), e);
         }
     }
 
@@ -56,8 +58,8 @@ public class RedisAppKeyCacheService implements AppKeyCacheService {
     public void delete(String lookup) {
         try {
             redisTemplate.delete(redisKey(lookup));
-        } catch (Exception ignored) {
-            // Deleting the source document still disables the key on cache expiry or miss fallback.
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to delete app key from Redis", e);
         }
     }
 
@@ -69,7 +71,8 @@ public class RedisAppKeyCacheService implements AppKeyCacheService {
             }
 
             return Optional.of(objectMapper.readValue(value, App.class));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to read app key from Redis", e);
             return Optional.empty();
         }
     }

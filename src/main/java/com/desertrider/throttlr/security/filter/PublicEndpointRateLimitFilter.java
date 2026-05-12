@@ -22,7 +22,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class PublicEndpointRateLimitFilter extends OncePerRequestFilter {
     private static final Map<String, PublicRateLimitPolicy> POLICIES = Map.of(
@@ -43,12 +45,15 @@ public class PublicEndpointRateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        PublicRateLimitDecision decision = publicRateLimitService.check(policy.get(), clientIpResolver.resolve(request));
+        String clientIp = clientIpResolver.resolve(request);
+        PublicRateLimitDecision decision = publicRateLimitService.check(policy.get(), clientIp);
         if (decision.allowed()) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        log.warn("[RATE-LIMIT] 429 blocked - endpoint: {}, ip: [{}], retryAfter: {}s",
+                policy.get().name(), clientIp, decision.retryAfter().toSeconds());
         writeTooManyRequests(response, decision.retryAfter());
     }
 

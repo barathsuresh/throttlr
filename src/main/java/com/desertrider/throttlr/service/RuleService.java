@@ -22,8 +22,10 @@ import com.desertrider.throttlr.service.cache.RuleCacheService;
 import com.desertrider.throttlr.validation.InputLimits;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RuleService {
     private final RuleRepository ruleRepository;
@@ -59,6 +61,8 @@ public class RuleService {
         appRepository.save(app);
         ruleCacheService.put(savedRule);
         deletePatternCacheIfNeeded(appId, savedRule.getClientId());
+        log.info("[RULE] Rule created - accountId: [{}], appId: [{}], clientId: [{}], algorithm: {}",
+                accountId, appId, savedRule.getClientId(), savedRule.getAlgorithm());
 
         return toRuleResponse(savedRule);
     }
@@ -110,6 +114,7 @@ public class RuleService {
 
         app.setRuleCount(Math.max(0, app.getRuleCount() - 1));
         appRepository.save(app);
+        log.info("[RULE] Rule deleted - accountId: [{}], appId: [{}], clientId: [{}]", accountId, appId, clientId);
     }
 
     public RuleResponse updateRule(String accountId, String appId, String clientId, CreateRuleRequest request) {
@@ -132,6 +137,8 @@ public class RuleService {
         Rule savedRule = ruleRepository.save(rule);
         ruleCacheService.put(savedRule);
         deletePatternCacheIfNeeded(appId, savedRule.getClientId());
+        log.info("[RULE] Rule updated - accountId: [{}], appId: [{}], clientId: [{}], algorithm: {}",
+                accountId, appId, clientId, savedRule.getAlgorithm());
         return toRuleResponse(savedRule);
     }
 

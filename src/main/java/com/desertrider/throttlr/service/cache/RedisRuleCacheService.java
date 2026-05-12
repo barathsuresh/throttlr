@@ -12,7 +12,9 @@ import com.desertrider.throttlr.model.Rule;
 import com.desertrider.throttlr.repository.RuleRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class RedisRuleCacheService implements RuleCacheService {
     private static final String RULE_KEY_PREFIX = "rule:";
@@ -50,8 +52,8 @@ public class RedisRuleCacheService implements RuleCacheService {
             if (value != null) {
                 return objectMapper.readValue(value, new TypeReference<List<Rule>>() {});
             }
-        } catch (Exception ignored) {
-            // fall through to MongoDB
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to read pattern cache from Redis - appId: [{}]", appId, e);
         }
         List<Rule> patterns = ruleRepository.findPatternsByAppId(appId);
         cachePatterns(appId, patterns);
@@ -70,8 +72,9 @@ public class RedisRuleCacheService implements RuleCacheService {
                     ruleKey(rule.getAppId(), rule.getClientId()),
                     objectMapper.writeValueAsString(rule),
                     ttl);
-        } catch (Exception ignored) {
-            // Mongo remains the source of truth if Redis is unavailable.
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to write rule to Redis - appId: [{}], clientId: [{}]",
+                    rule.getAppId(), rule.getClientId(), e);
         }
     }
 
@@ -79,8 +82,8 @@ public class RedisRuleCacheService implements RuleCacheService {
     public void delete(String appId, String clientId) {
         try {
             redisTemplate.delete(ruleKey(appId, clientId));
-        } catch (Exception ignored) {
-            // The Mongo source of truth still wins on the next cache miss.
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to delete rule from Redis - appId: [{}], clientId: [{}]", appId, clientId, e);
         }
     }
 
@@ -88,8 +91,8 @@ public class RedisRuleCacheService implements RuleCacheService {
     public void deletePatternCache(String appId) {
         try {
             redisTemplate.delete(patternKey(appId));
-        } catch (Exception ignored) {
-            // The Mongo source of truth still wins on the next cache miss.
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to delete pattern cache from Redis - appId: [{}]", appId, e);
         }
     }
 
@@ -100,7 +103,8 @@ public class RedisRuleCacheService implements RuleCacheService {
                 return Optional.empty();
             }
             return Optional.of(objectMapper.readValue(value, Rule.class));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to read rule from Redis - appId: [{}], clientId: [{}]", appId, clientId, e);
             return Optional.empty();
         }
     }
@@ -111,8 +115,8 @@ public class RedisRuleCacheService implements RuleCacheService {
                     patternKey(appId),
                     objectMapper.writeValueAsString(patterns),
                     ttl);
-        } catch (Exception ignored) {
-            // Mongo remains the source of truth if Redis is unavailable.
+        } catch (Exception e) {
+            log.warn("[CACHE] Failed to cache patterns in Redis - appId: [{}]", appId, e);
         }
     }
 

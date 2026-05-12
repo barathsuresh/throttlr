@@ -14,8 +14,10 @@ import com.desertrider.throttlr.security.service.PassphraseService;
 import com.desertrider.throttlr.validation.InputLimits;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
     private final PassphraseService passphraseService;
@@ -41,6 +43,7 @@ public class AuthService {
                 .build();
 
         Account savedAccount = accountRepository.save(account);
+        log.info("[AUTH] Account registered - accountId: [{}]", savedAccount.getId());
 
         return new RegisterResponse(
                 savedAccount.getId(),
@@ -67,13 +70,18 @@ public class AuthService {
         String lookup = passphraseService.createLookup(request.passphrase());
 
         Account account = accountRepository.findByPassphraseLookup(lookup)
-                .orElseThrow(() -> new UnauthorizedException("Invalid passphrase"));
+                .orElseThrow(() -> {
+                    log.warn("[AUTH] Login failed - account not found");
+                    return new UnauthorizedException("Invalid passphrase");
+                });
 
         boolean matches = passphraseService.matches(request.passphrase(), account.getPassphraseHash());
         if (!matches) {
+            log.warn("[AUTH] Login failed - invalid passphrase for accountId: [{}]", account.getId());
             throw new UnauthorizedException("Invalid passphrase");
         }
 
+        log.info("[AUTH] Login successful - accountId: [{}]", account.getId());
         String token = jwtProvider.generateToken(account, null);
 
         return new LoginResponse(token, account.getId());

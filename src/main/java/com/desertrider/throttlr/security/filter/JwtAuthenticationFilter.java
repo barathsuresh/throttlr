@@ -27,8 +27,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = jwtProvider.getJwtFromHeader(request);
         if (token != null && jwtProvider.validateJwtToken(token)) {
-            log.debug("[JWT] Valid JWT token found: {}", jwtProvider.tokenPreview(token));
             String accountId = jwtProvider.getUserIdFromToken(token);
+            log.debug("[JWT] Token authenticated - accountId: [{}]", accountId);
             AccountPrincipal principal = new AccountPrincipal(accountId);
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

@@ -18,3 +18,9 @@ app:
     lookup-secret: ${APP_KEY_LOOKUP_SECRET}
   admin:
     key: ${ADMIN_KEY}
+
+logging:
+  level:
+    root: INFO
+    "[com.desertrider.throttlr]": INFO
+    "[org.springframework.security]": INFO
