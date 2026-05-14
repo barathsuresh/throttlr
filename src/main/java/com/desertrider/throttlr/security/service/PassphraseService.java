@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Passphrase management for account authentication.
+ * Generates BIP39 mnemonics (12-word phrases), creates lookup hash and bcrypt
+ * hash.
+ * Lookup enables fast O(1) account lookup; bcrypt ensures secure storage.
+ */
 @Service
 @Slf4j
 public class PassphraseService {
@@ -42,6 +48,7 @@ public class PassphraseService {
         }
     }
 
+    /** Creates HMAC-SHA256 lookup hash for fast account verification. */
     public String createLookup(String passphrase) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -57,10 +64,12 @@ public class PassphraseService {
         }
     }
 
+    /** Encodes passphrase using bcrypt for secure storage. */
     public String hash(String passphrase) {
         return passwordEncoder.encode(normalizeForPasswordEncoder(passphrase));
     }
 
+    /** Verifies raw passphrase against stored bcrypt hash. */
     public boolean matches(String rawPassphrase, String storedHash) {
         String normalizedPassphrase = normalizeForPasswordEncoder(rawPassphrase);
         return passwordEncoder.matches(normalizedPassphrase, storedHash);

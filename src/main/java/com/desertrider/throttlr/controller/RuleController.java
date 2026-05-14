@@ -20,11 +20,16 @@ import com.desertrider.throttlr.service.RuleService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * API for managing rate limit rules per app. Rules define limits for specific
+ * clients or patterns.
+ */
 @RestController
 @RequiredArgsConstructor
 public class RuleController {
     private final RuleService ruleService;
 
+    /** Creates rate limit rule for specific client. */
     @PostMapping("/api/apps/{appId}/rules")
     @ResponseStatus(HttpStatus.CREATED)
     public RuleResponse createRule(
@@ -34,6 +39,7 @@ public class RuleController {
         return ruleService.createRule(principal.accountId(), appId, request);
     }
 
+    /** Lists paginated rules for app. */
     @GetMapping("/api/apps/{appId}/rules")
     public PagedResponse<RuleResponse> listRules(
             @AuthenticationPrincipal AccountPrincipal principal,
@@ -43,6 +49,7 @@ public class RuleController {
         return ruleService.listRules(principal.accountId(), appId, page, size);
     }
 
+    /** Deletes rule for client. */
     @DeleteMapping("/api/apps/{appId}/rules/{clientId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRule(
@@ -52,6 +59,7 @@ public class RuleController {
         ruleService.deleteRule(principal.accountId(), appId, clientId);
     }
 
+    /** Updates rule algorithm/limits. Client ID cannot be changed. */
     @PutMapping("/api/apps/{appId}/rules/{clientId}")
     public RuleResponse updateRule(
             @AuthenticationPrincipal AccountPrincipal principal,

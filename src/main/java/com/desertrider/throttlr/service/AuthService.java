@@ -25,11 +25,12 @@ public class AuthService {
     private final JwtProvider jwtProvider;
 
     /**
-     * Registers a new account by generating a passphrase, creating a lookup and
-     * hash,
-     * and saving the account details in the database.
-     * 
-     * @return
+     * Registers new account:
+     * 1. Generates cryptographically secure passphrase
+     * 2. Creates HMAC lookup (for fast verification) + bcrypt hash (for secure
+     * storage)
+     * 3. Persists to MongoDB
+     * Passphrase shown only once - client must save immediately
      */
     public RegisterResponse register() {
         String passphrase = passphraseService.generatePassphrase();
@@ -53,10 +54,11 @@ public class AuthService {
     }
 
     /**
-     * Authenticates a user by validating the provided passphrase against the stored
-     * 
-     * @param request
-     * @return
+     * Authenticates user:
+     * 1. Finds account via lookup hash (fast O(1) lookup)
+     * 2. Verifies passphrase against bcrypt hash
+     * 3. Generates JWT token for session
+     * Throws UnauthorizedException if passphrase invalid
      */
     public LoginResponse login(LoginRequest request) {
         if (request == null || !StringUtils.hasText(request.passphrase())) {

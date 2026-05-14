@@ -19,24 +19,31 @@ import com.desertrider.throttlr.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Authentication endpoints: register (create account), login (obtain JWT), and
+ * me (verify token).
+ */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
 
+    /** Creates new account with auto-generated 12-word BIP39 passphrase. */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponse register() {
         return authService.register();
     }
 
+    /** Authenticates with passphrase and returns JWT token. */
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public LoginResponse login(@RequestBody LoginRequest request) {
         return authService.login(request);
     }
 
+    /** Returns authenticated account ID from JWT token. */
     @GetMapping("/me")
     public Map<String, String> me(@AuthenticationPrincipal AccountPrincipal principal) {
         return Map.of("accountId", principal.accountId());

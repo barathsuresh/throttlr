@@ -18,20 +18,27 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Provider class responsible for generating, validating, and extracting
+ * information from JWT tokens.
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class JwtProvider {
     private final JwtProperties jwtProperties;
 
+    /** Returns JWT configuration properties. */
     public JwtProperties getJwtProperties() {
         return jwtProperties;
     }
 
+    /** Derives HMAC signing key from the configured secret. */
     public SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
     }
 
+    /** Extracts JWT from "Bearer <token>" Authorization header format. */
     public String getJwtFromHeader(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
 
@@ -42,11 +49,16 @@ public class JwtProvider {
         return null;
     }
 
+    /** Generates preview of token for logging (first 10 chars + length). */
     public String tokenPreview(String token) {
         int previewLength = Math.min(10, token.length());
         return token.substring(0, previewLength) + "...(len=" + token.length() + ")";
     }
 
+    /**
+     * Validates JWT signature, issuer, and audience. Returns true if valid, false
+     * otherwise.
+     */
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder()
@@ -71,6 +83,7 @@ public class JwtProvider {
         return false; // Token validation failed
     }
 
+    /** Generates JWT token with account ID as subject and configured TTL. */
     public String generateToken(Account user, String tenantId) {
         Date now = new Date(System.currentTimeMillis());
 
@@ -92,6 +105,7 @@ public class JwtProvider {
                 .compact();
     }
 
+    /** Extracts account ID (subject) from validated JWT token. */
     public String getUserIdFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())

@@ -26,9 +26,22 @@ public class RateLimitService {
     private final TokenBucketRateLimiter tokenBucketRateLimiter;
     private final SlidingWindowRateLimiter slidingWindowRateLimiter;
     private final AnalyticsService analyticsService;
+    /**
+     * Main rate limiting orchestrator.
+     * Accepts API key and client ID, returns allow/deny decision with quota info.
+     */
     private final PatternMatcher patternMatcher;
 
     public CheckResponse check(String appKey, CheckRequest request) {
+        /**
+         * Checks if client request is within rate limits:
+         * 1. Validates app key
+         * 2. Looks up exact-match rule or finds best pattern match
+         * 3. Applies rate limiting algorithm (Fixed Window, Token Bucket, or Sliding
+         * Window)
+         * 4. Records analytics
+         * Returns: allowed flag, remaining quota, reset time, retry-after time
+         */
         if (request == null || !StringUtils.hasText(request.clientId())) {
             throw new IllegalArgumentException("Client id is required");
         }
@@ -52,6 +65,7 @@ public class RateLimitService {
     }
 
     private Rule synthesizeRule(Rule pattern, String actualClientId) {
+        /** Creates rule instance from pattern by substituting actual client ID. */
         return Rule.builder()
                 .id(pattern.getId())
                 .appId(pattern.getAppId())
@@ -66,6 +80,7 @@ public class RateLimitService {
     }
 
     private CheckResponse checkConfiguredRule(Rule rule) {
+        /** Dispatches rule check to appropriate rate limiter by algorithm type. */
         if (rule.getAlgorithm() == Algorithm.FIXED_WINDOW) {
             return fixedWindowRateLimiter.check(rule);
         }
@@ -82,6 +97,7 @@ public class RateLimitService {
     }
 
     private CheckResponse allowWithoutRule() {
+        /** Default response when no rule defined: allow with unlimited quota. */
         return new CheckResponse(true, Integer.MAX_VALUE, 0, 0);
     }
 }

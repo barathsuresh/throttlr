@@ -38,6 +38,10 @@ public class AppKeyService {
         this.appKeyCacheService = appKeyCacheService;
     }
 
+    /**
+     * Generates secure 32-byte random app key with throttlr_live_ prefix. Uses
+     * URL-safe Base64 encoding.
+     */
     public String generateAppKey() {
         byte[] randomBytes = new byte[32];
         new SecureRandom().nextBytes(randomBytes);
@@ -49,6 +53,10 @@ public class AppKeyService {
         return KEY_PREFIX + token;
     }
 
+    /**
+     * Creates HMAC-SHA256 lookup hash for fast app key verification without
+     * exposing the key.
+     */
     public String createLookup(String appKey) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -64,15 +72,23 @@ public class AppKeyService {
         }
     }
 
+    /** Encodes app key using password encoder (bcrypt) for secure storage. */
     public String hash(String appKey) {
         return passwordEncoder.encode(normalizeForPasswordEncoder(appKey));
     }
 
+    /** Verifies raw app key against stored bcrypt hash. */
     public boolean matches(String rawAppKey, String storedHash) {
         String normalizedAppKey = normalizeForPasswordEncoder(rawAppKey);
         return passwordEncoder.matches(normalizedAppKey, storedHash);
     }
 
+    /**
+     * Validates app key by:
+     * 1. Checking if key exists (via lookup hash)
+     * 2. Verifying hash matches stored value
+     * Throws UnauthorizedException if key invalid or not found.
+     */
     public App validateAppKey(String appKey) {
         if (!StringUtils.hasText(appKey)) {
             log.warn("[APP-KEY] Validation failed - app key missing");

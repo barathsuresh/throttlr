@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import com.desertrider.throttlr.config.JwtProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties(JwtProperties.class) // Enable configuration properties for JwtProperties class
 public class ThrottlrApplication {
 
 	public static void main(String[] args) {

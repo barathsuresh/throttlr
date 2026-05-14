@@ -32,6 +32,13 @@ public class RuleService {
     private final AppRepository appRepository;
     private final RuleCacheService ruleCacheService;
 
+    /**
+     * Creates rate limit rule for specific client:
+     * 1. Validates app ownership and rule uniqueness
+     * 2. Persists to MongoDB
+     * 3. Updates app's rule count
+     * 4. Caches rule and invalidates pattern cache if needed
+     */
     public RuleResponse createRule(String accountId, String appId, CreateRuleRequest request) {
         validateCreateRuleRequest(request);
 
@@ -67,6 +74,9 @@ public class RuleService {
         return toRuleResponse(savedRule);
     }
 
+    /**
+     * Retrieves paginated rules for app (sorted by creation date, newest first).
+     */
     public PagedResponse<RuleResponse> listRules(String accountId, String appId, int page, int size) {
         if (page < 0) {
             throw new IllegalArgumentException("Page must be greater than or equal to 0");
@@ -101,6 +111,10 @@ public class RuleService {
                 rulePage.hasPrevious());
     }
 
+    /**
+     * Deletes rule and decrements app's rule count. Clears rule cache and pattern
+     * cache if needed.
+     */
     public void deleteRule(String accountId, String appId, String clientId) {
         App app = appRepository.findByIdAndAccountId(appId, accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("App not found"));
@@ -117,6 +131,10 @@ public class RuleService {
         log.info("[RULE] Rule deleted - accountId: [{}], appId: [{}], clientId: [{}]", accountId, appId, clientId);
     }
 
+    /**
+     * Updates rule algorithm/limits and invalidates caches. Client ID cannot be
+     * changed.
+     */
     public RuleResponse updateRule(String accountId, String appId, String clientId, CreateRuleRequest request) {
         validateCreateRuleRequest(request);
         if (!clientId.equals(request.clientId().trim())) {
@@ -142,6 +160,10 @@ public class RuleService {
         return toRuleResponse(savedRule);
     }
 
+    /**
+     * If client ID is a pattern (contains wildcards), invalidate all pattern cache
+     * for this app.
+     */
     private void deletePatternCacheIfNeeded(String appId, String clientId) {
         if (PatternMatcher.isPattern(clientId)) {
             ruleCacheService.deletePatternCache(appId);

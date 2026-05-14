@@ -12,13 +12,19 @@ import org.springframework.stereotype.Component;
 
 import com.desertrider.throttlr.model.Rule;
 
+/**
+ * Matches client IDs against glob patterns using wildcards (*).
+ * Supports pattern rules like "mobile-*", "android-*", "user-*".
+ * Uses LRU cache for compiled regex patterns to optimize repeated matches.
+ */
 @Component
 public class PatternMatcher {
 
     private static final char[] FORBIDDEN = {
-        '+', '?', '[', ']', '(', ')', '{', '}', '^', '$', '|', '\\'
+            '+', '?', '[', ']', '(', ')', '{', '}', '^', '$', '|', '\\'
     };
 
+    /** LRU cache for compiled regex patterns (max 1000 entries). */
     private final Map<String, Pattern> patternCache = Collections.synchronizedMap(
             new LinkedHashMap<>(1000, 0.75f, true) {
                 @Override
@@ -27,10 +33,12 @@ public class PatternMatcher {
                 }
             });
 
+    /** Checks if clientId is a pattern (contains wildcard *). */
     public static boolean isPattern(String clientId) {
         return clientId != null && clientId.contains("*");
     }
 
+    /** Validates pattern syntax: no **, no regex special chars except *. */
     public static void validatePattern(String clientId) {
         if (clientId == null) {
             throw new IllegalArgumentException("Pattern clientId must not be null");
@@ -46,6 +54,7 @@ public class PatternMatcher {
         }
     }
 
+    /** Finds best matching pattern rule: most specific (longest literals) wins. */
     public Optional<Rule> findBestMatch(List<Rule> patterns, String clientId) {
         return patterns.stream()
                 .filter(rule -> matches(rule.getClientId(), clientId))

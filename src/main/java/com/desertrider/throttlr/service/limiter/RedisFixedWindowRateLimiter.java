@@ -12,10 +12,16 @@ import com.desertrider.throttlr.dto.response.CheckResponse;
 import com.desertrider.throttlr.model.Rule;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Fixed Window rate limiter using Redis Lua script.
+ * Atomic operation: checks and increments counter in single transaction.
+ * Returns: allowed flag, remaining quota, reset time, retry-after time.
+ */
 @Slf4j
 @Service
 public class RedisFixedWindowRateLimiter implements FixedWindowRateLimiter {
     private final RedisTemplate<String, String> redisTemplate;
+    /** Compiled Lua script for atomic fixed-window rate limiting. */
     private final DefaultRedisScript<List<Long>> script;
 
     public RedisFixedWindowRateLimiter(RedisTemplate<String, String> redisTemplate) {
@@ -23,6 +29,7 @@ public class RedisFixedWindowRateLimiter implements FixedWindowRateLimiter {
         this.script = redisScript("redis/fixed-window.lua");
     }
 
+    /** Executes Lua script atomically to check rate limit and update counter. */
     @Override
     public CheckResponse check(Rule rule) {
         List<Long> result = redisTemplate.execute(
@@ -31,8 +38,10 @@ public class RedisFixedWindowRateLimiter implements FixedWindowRateLimiter {
                 String.valueOf(rule.getLimitPerWindow()),
                 String.valueOf(rule.getWindowMs()));
 
+        // Returns: [allowed, remaining, resetAfterMs, retryAfterMs]
         if (result == null || result.size() != 4) {
-            log.error("[RATE-LIMIT] Invalid response from Redis fixed-window script - appId: [{}], clientId: [{}], result: {}",
+            log.error(
+                    "[RATE-LIMIT] Invalid response from Redis fixed-window script - appId: [{}], clientId: [{}], result: {}",
                     rule.getAppId(), rule.getClientId(), result);
             throw new IllegalStateException("Invalid Redis rate limit response");
         }

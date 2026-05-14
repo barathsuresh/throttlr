@@ -11,6 +11,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Rate limit rule for a client within an app.
+ * Client ID can be exact match or glob pattern (e.g., "mobile-*").
+ * Compound index ensures one rule per (appId, clientId).
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,16 +27,22 @@ public class Rule {
     @Id
     private String id;
 
+    /** App this rule belongs to. */
     private String appId;
 
+    /** Account (tenant) owner of this rule. */
     private String accountId;
 
+    /** Client identifier: exact string or glob pattern like "mobile-*". */
     private String clientId;
 
+    /** Rate limiting algorithm: FIXED_WINDOW, SLIDING_WINDOW, or TOKEN_BUCKET. */
     private Algorithm algorithm;
 
+    /** Max requests allowed per window. */
     private int limitPerWindow;
 
+    /** Time window in milliseconds for counting requests. */
     private long windowMs;
 
     private long createdAt;

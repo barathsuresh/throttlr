@@ -23,6 +23,7 @@ import com.desertrider.throttlr.service.AppService;
 
 import lombok.RequiredArgsConstructor;
 
+/** API for managing rate limiting applications (rate limit "projects"). */
 @RestController
 @RequestMapping("/api/apps")
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class AppController {
     private final AppService appService;
     private final AnalyticsReadService analyticsReadService;
 
+    /** Creates new app with auto-generated unique API key. */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AppCreatedResponse createApp(
@@ -38,6 +40,7 @@ public class AppController {
         return appService.createApp(principal.accountId(), request);
     }
 
+    /** Lists all apps for authenticated account (paginated). */
     @GetMapping
     public PagedResponse<AppResponse> listApps(
             @AuthenticationPrincipal AccountPrincipal principal,
@@ -46,6 +49,7 @@ public class AppController {
         return appService.listApps(principal.accountId(), page, size);
     }
 
+    /** Deletes app and all associated rules. */
     @DeleteMapping("/{appId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteApp(
@@ -54,6 +58,7 @@ public class AppController {
         appService.deleteApp(principal.accountId(), appId);
     }
 
+    /** Retrieves current hour analytics: total, allowed, and blocked requests. */
     @GetMapping("/{appId}/analytics")
     public AnalyticsResponse getAnalytics(
             @AuthenticationPrincipal AccountPrincipal principal,

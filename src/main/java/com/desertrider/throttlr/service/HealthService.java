@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.desertrider.throttlr.dto.response.HealthResponse;
 
+/** Checks application health and critical dependencies (Redis, MongoDB). */
 @Service
 public class HealthService {
     private final RedisConnectionFactory redisConnectionFactory;
@@ -22,6 +23,7 @@ public class HealthService {
         return new HealthResponse("throttlr", "UP", "Application is running");
     }
 
+    /** Pings Redis to verify connectivity and responsiveness. */
     public HealthResponse redisHealth() {
         try {
             RedisConnection connection = redisConnectionFactory.getConnection();
@@ -36,6 +38,7 @@ public class HealthService {
         }
     }
 
+    /** Pings MongoDB to verify connectivity and responsiveness. */
     public HealthResponse mongoHealth() {
         try {
             Document result = mongoDatabaseFactory.getMongoDatabase().runCommand(new Document("ping", 1));
