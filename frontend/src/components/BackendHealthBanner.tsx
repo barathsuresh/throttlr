@@ -6,7 +6,7 @@ export function BackendHealthBanner({ isAlive }: Props) {
   if (isAlive) return null
 
   return (
-    <div className="w-full border-b border-amber-300/40 bg-amber-100/80 px-4 py-2 text-sm text-amber-950 backdrop-blur">
+    <div className="w-full border-b border-amber-300/40 bg-amber-100/80 px-4 py-2 text-sm text-amber-950 backdrop-blur dark:border-amber-700/40 dark:bg-amber-900/30 dark:text-amber-200">
       <div className="mx-auto flex max-w-7xl items-center gap-2">
       <svg className="animate-spin h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

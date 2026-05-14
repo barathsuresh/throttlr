@@ -64,34 +64,34 @@ function AlgoTab({ rule, appKey, expiresAt }: TabPanelProps) {
 
   return (
     <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-      <div className="rounded-3xl border border-slate-900/10 bg-white/75 p-5 shadow-sm">
+      <div className="rounded-3xl border border-slate-900/10 bg-white/75 p-5 shadow-sm dark:border-white/10 dark:bg-slate-800/70">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500">Selected scenario</p>
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Selected scenario</p>
             <p className="mt-2 font-heading text-3xl font-bold tracking-tight">{TAB_LABELS[rule.algorithm] ?? rule.algorithm}</p>
           </div>
           <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-slate-950 text-amber-200">
             <Zap className="size-5" />
           </span>
         </div>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{ALGORITHM_COPY[rule.algorithm]}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{ALGORITHM_COPY[rule.algorithm]}</p>
 
         <div className="mt-6 grid gap-3 font-mono text-sm">
-          <div className="rounded-2xl border border-slate-900/10 bg-slate-950/5 p-3">
-            <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">clientId</p>
-            <span className="break-all text-slate-950">{rule.clientId}</span>
+          <div className="rounded-2xl border border-slate-900/10 bg-slate-950/5 p-3 dark:border-white/10 dark:bg-white/5">
+            <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">clientId</p>
+            <span className="break-all text-slate-950 dark:text-slate-100">{rule.clientId}</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-slate-900/10 bg-slate-950/5 p-3">
-              <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">limit</p>
-              <span className="text-slate-950">{rule.limitPerWindow}</span>
+            <div className="rounded-2xl border border-slate-900/10 bg-slate-950/5 p-3 dark:border-white/10 dark:bg-white/5">
+              <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">limit</p>
+              <span className="text-slate-950 dark:text-slate-100">{rule.limitPerWindow}</span>
             </div>
-            <div className="rounded-2xl border border-slate-900/10 bg-slate-950/5 p-3">
-              <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">window</p>
-              <span className="text-slate-950">{rule.windowMs}ms</span>
+            <div className="rounded-2xl border border-slate-900/10 bg-slate-950/5 p-3 dark:border-white/10 dark:bg-white/5">
+              <p className="mb-1 text-[0.65rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">window</p>
+              <span className="text-slate-950 dark:text-slate-100">{rule.windowMs}ms</span>
             </div>
           </div>
-          <Badge variant={expired ? 'destructive' : 'outline'} className="w-fit rounded-full bg-white/70">
+          <Badge variant={expired ? 'destructive' : 'outline'} className="w-fit rounded-full bg-white/70 dark:bg-slate-800/60">
             {expired ? 'Demo expired' : Number.isFinite(msLeft) ? `Expires in ${Math.floor(msLeft / 1000)}s` : 'Preparing demo'}
           </Badge>
         </div>
@@ -200,28 +200,28 @@ export function Demo() {
       description="Each tab creates a temporary demo rule and calls the same /api/check endpoint your API would use in production."
     >
       {!isAlive && (
-        <div className="glass-panel rounded-3xl p-6 text-sm text-slate-600">
+        <div className="glass-panel rounded-3xl p-6 text-sm text-slate-600 dark:text-slate-400">
           Backend is waking up on Cloud Run. Give it a few seconds.
         </div>
       )}
 
       {error && (
-        <div className="glass-panel rounded-3xl border-red-200 p-6 text-sm text-red-700">{error}</div>
+        <div className="glass-panel rounded-3xl border-red-200 p-6 text-sm text-red-700 dark:border-red-800/50 dark:text-red-400">{error}</div>
       )}
 
       {demo && expiresAt !== null && (
-        <div className="rounded-[2rem] border border-slate-900/10 bg-white/70 p-4 shadow-sm backdrop-blur md:p-5">
+        <div className="rounded-[2rem] border border-slate-900/10 bg-white/70 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-800/70 md:p-5">
           <div className="mb-5 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className="bg-slate-950 text-amber-200">Temporary key</Badge>
-                <span className="break-all font-mono text-xs text-slate-500">{demo.appId}</span>
+                <span className="break-all font-mono text-xs text-slate-500 dark:text-slate-400">{demo.appId}</span>
               </div>
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                 Choose an algorithm, send requests, and watch the decision state change.
               </p>
             </div>
-            <span className="flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/70 px-3 py-2 text-sm text-slate-600">
+            <span className="flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/70 px-3 py-2 text-sm text-slate-600 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-400">
               <TimerReset className="size-4" />
               Auto-expires
             </span>

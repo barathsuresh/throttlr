@@ -29,13 +29,13 @@ export function Landing() {
     <AppShell>
       <section className="grid min-h-[calc(100vh-9rem)] items-center gap-10 py-10 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="max-w-3xl animate-rise">
-          <Badge className="mb-5 border border-slate-900/10 bg-white/70 px-3 py-1 text-slate-700">
+          <Badge className="mb-5 border border-slate-900/10 bg-white/70 px-3 py-1 text-slate-700 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-300">
             Redis hot path • Mongo cache fallback • JWT dashboard
           </Badge>
-          <h1 className="font-heading text-6xl font-black leading-[0.92] tracking-[-0.07em] text-slate-950 md:text-8xl">
+          <h1 className="font-heading text-6xl font-black leading-[0.92] tracking-[-0.07em] text-slate-950 dark:text-slate-50 md:text-8xl">
             Rate limits with teeth.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 md:text-xl">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400 md:text-xl">
             Throttlr is a self-serve rate limiting engine for developers. Create an app, define exact or wildcard rules, and protect APIs with a single app-key header.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -45,7 +45,7 @@ export function Landing() {
               </Button>
             </Link>
             <Link to="/demo">
-              <Button size="lg" variant="outline" className="h-12 rounded-2xl border-slate-900/15 bg-white/60 px-5">
+              <Button size="lg" variant="outline" className="h-12 rounded-2xl border-slate-900/15 bg-white/60 px-5 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-300">
                 Try live demo
               </Button>
             </Link>
@@ -57,7 +57,7 @@ export function Landing() {
           </div>
           <div className="mt-8 flex flex-wrap gap-2">
             {STACK.map((tech) => (
-              <Badge key={tech} variant="secondary" className="rounded-full bg-white/70 px-3 py-1 text-slate-700">
+              <Badge key={tech} variant="secondary" className="rounded-full bg-white/70 px-3 py-1 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
                 {tech}
               </Badge>
             ))}
@@ -96,9 +96,9 @@ export function Landing() {
       <section className="grid gap-4 pb-12 md:grid-cols-3">
         {FEATURES.map((feature) => (
           <div key={feature.title} className="glass-panel rounded-3xl p-5 transition hover:-translate-y-1 hover:shadow-2xl">
-            <feature.icon className="mb-5 size-7 text-slate-900" />
+            <feature.icon className="mb-5 size-7 text-slate-900 dark:text-slate-200" />
             <h2 className="font-heading text-2xl font-bold tracking-tight">{feature.title}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600">{feature.copy}</p>
+            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">{feature.copy}</p>
           </div>
         ))}
       </section>

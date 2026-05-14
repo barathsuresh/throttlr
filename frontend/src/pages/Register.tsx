@@ -22,11 +22,11 @@ export function Register() {
     <AppShell compact>
       <div className="mx-auto grid min-h-[calc(100vh-10rem)] max-w-5xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="animate-rise">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">One-time credential</p>
-          <h1 className="mt-4 font-heading text-5xl font-black tracking-[-0.05em] text-slate-950 md:text-7xl">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-slate-600 dark:text-slate-400">One-time credential</p>
+          <h1 className="mt-4 font-heading text-5xl font-black tracking-[-0.05em] text-slate-950 dark:text-slate-50 md:text-7xl">
             Create an account without a password.
           </h1>
-          <p className="mt-5 text-lg leading-8 text-slate-600">
+          <p className="mt-5 text-lg leading-8 text-slate-600 dark:text-slate-400">
             Throttlr generates a BIP39 passphrase and stores only a secure lookup plus password hash. The raw phrase is shown once.
           </p>
         </div>
@@ -39,13 +39,13 @@ export function Register() {
             <CardTitle className="font-heading text-2xl font-bold">Create account</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm leading-6 text-slate-600">
+            <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
               No email, no password. Store the generated passphrase somewhere safe because it cannot be retrieved later.
             </p>
             <Button className="h-11 w-full rounded-2xl" onClick={handleRegister} disabled={registerPending}>
               {registerPending ? 'Creating...' : 'Generate passphrase'}
             </Button>
-            <p className="text-center text-sm text-slate-600">
+            <p className="text-center text-sm text-slate-600 dark:text-slate-400">
               Already have an account?{' '}
               <Link to="/login" className="font-medium underline underline-offset-4">
                 Log in

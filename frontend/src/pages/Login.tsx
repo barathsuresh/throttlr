@@ -30,11 +30,11 @@ export function Login() {
     <AppShell compact>
       <div className="mx-auto grid min-h-[calc(100vh-10rem)] max-w-5xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="animate-rise">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">Welcome back</p>
-          <h1 className="mt-4 font-heading text-5xl font-black tracking-[-0.05em] text-slate-950 md:text-7xl">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-slate-600 dark:text-slate-400">Welcome back</p>
+          <h1 className="mt-4 font-heading text-5xl font-black tracking-[-0.05em] text-slate-950 dark:text-slate-50 md:text-7xl">
             Enter the control room.
           </h1>
-          <p className="mt-5 text-lg leading-8 text-slate-600">
+          <p className="mt-5 text-lg leading-8 text-slate-600 dark:text-slate-400">
             Throttlr uses your BIP39 passphrase to mint a stateless JWT. No password reset flow, so store the passphrase safely.
           </p>
         </div>
@@ -52,7 +52,7 @@ export function Login() {
                 <Label htmlFor="passphrase">Passphrase</Label>
                 <Textarea
                   id="passphrase"
-                  className="min-h-28 rounded-2xl bg-white/70"
+                  className="min-h-28 rounded-2xl bg-white/70 dark:bg-slate-800/70 dark:text-slate-100 dark:placeholder:text-slate-500"
                   placeholder="Enter your 12-word BIP39 passphrase"
                   rows={4}
                   value={passphrase}
@@ -63,7 +63,7 @@ export function Login() {
               <Button type="submit" className="h-11 w-full rounded-2xl" disabled={loginPending || !passphrase.trim()}>
                 {loginPending ? 'Logging in...' : 'Log in'}
               </Button>
-              <p className="text-center text-sm text-slate-600">
+              <p className="text-center text-sm text-slate-600 dark:text-slate-400">
                 No account?{' '}
                 <Link to="/register" className="font-medium underline underline-offset-4">
                   Register

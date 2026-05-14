@@ -28,9 +28,9 @@ function formatWindow(ms: number): string {
 }
 
 const ALGORITHM_COLORS: Record<string, string> = {
-  FIXED_WINDOW: 'border-cyan-300 bg-cyan-50 text-cyan-900',
-  TOKEN_BUCKET: 'border-amber-300 bg-amber-50 text-amber-900',
-  SLIDING_WINDOW: 'border-emerald-300 bg-emerald-50 text-emerald-900',
+  FIXED_WINDOW: 'border-cyan-300 bg-cyan-50 text-cyan-900 dark:border-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
+  TOKEN_BUCKET: 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  SLIDING_WINDOW: 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
 }
 
 export function AppRules() {
@@ -149,7 +149,7 @@ export function AppRules() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="rounded-xl text-red-700"
+                  className="rounded-xl text-red-700 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                   onClick={() => handleDelete(rule.clientId)}
                 >
                   Delete

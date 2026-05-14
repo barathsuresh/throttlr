@@ -231,10 +231,10 @@ const endpoints: EndpointDoc[] = [
 ]
 
 const methodStyles: Record<EndpointDoc['method'], string> = {
-  GET: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-  POST: 'bg-amber-100 text-amber-900 border-amber-300',
-  PUT: 'bg-cyan-100 text-cyan-900 border-cyan-300',
-  DELETE: 'bg-red-100 text-red-900 border-red-300',
+  GET: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700',
+  POST: 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700',
+  PUT: 'bg-cyan-100 text-cyan-900 border-cyan-300 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-700',
+  DELETE: 'bg-red-100 text-red-900 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700',
 }
 
 function CodeBlock({ children }: { children: string }) {
@@ -249,31 +249,31 @@ function EndpointCard({ endpoint }: { endpoint: EndpointDoc }) {
   const id = `${endpoint.method}-${endpoint.path}`.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase()
 
   return (
-    <section id={id} className="scroll-mt-28 rounded-2xl border border-slate-900/10 bg-white/80 shadow-sm backdrop-blur">
-      <div className="border-b border-slate-900/10 p-4 md:p-5">
+    <section id={id} className="scroll-mt-28 rounded-2xl border border-slate-900/10 bg-white/80 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-800/70">
+      <div className="border-b border-slate-900/10 p-4 dark:border-white/10 md:p-5">
         <div className="flex flex-wrap items-center gap-3">
           <Badge variant="outline" className={methodStyles[endpoint.method]}>
           {endpoint.method}
           </Badge>
-          <code className="break-all rounded-lg bg-slate-950/5 px-2.5 py-1 font-mono text-sm text-slate-950">
+          <code className="break-all rounded-lg bg-slate-950/5 px-2.5 py-1 font-mono text-sm text-slate-950 dark:bg-white/5 dark:text-slate-100">
             {endpoint.path}
           </code>
-          <Badge variant="outline" className="ml-auto rounded-full bg-white text-slate-600">
+          <Badge variant="outline" className="ml-auto rounded-full bg-white text-slate-600 dark:bg-slate-800 dark:text-slate-400">
             {endpoint.auth}
           </Badge>
         </div>
         <h2 className="mt-3 font-heading text-xl font-bold tracking-tight md:text-2xl">{endpoint.title}</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{endpoint.purpose}</p>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-400">{endpoint.purpose}</p>
       </div>
 
       <div className="grid gap-0 lg:grid-cols-[0.75fr_1.25fr]">
         <div className="space-y-3">
           {endpoint.headers && (
-            <div className="border-b border-slate-900/10 p-4 lg:border-r">
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">Headers</p>
+            <div className="border-b border-slate-900/10 p-4 dark:border-white/10 lg:border-r">
+              <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Headers</p>
               <ul className="mt-3 space-y-2">
                 {endpoint.headers.map((header) => (
-                  <li key={header} className="break-all rounded-lg bg-slate-950/5 px-3 py-2 font-mono text-xs text-slate-800">
+                  <li key={header} className="break-all rounded-lg bg-slate-950/5 px-3 py-2 font-mono text-xs text-slate-800 dark:bg-white/5 dark:text-slate-200">
                     {header}
                   </li>
                 ))}
@@ -282,9 +282,9 @@ function EndpointCard({ endpoint }: { endpoint: EndpointDoc }) {
           )}
 
           {endpoint.notes && (
-            <div className="p-4 lg:border-r">
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">Notes</p>
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+            <div className="p-4 dark:border-white/10 lg:border-r">
+              <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Notes</p>
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
                 {endpoint.notes.map((note) => (
                   <li key={note} className="flex gap-2">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
@@ -296,7 +296,7 @@ function EndpointCard({ endpoint }: { endpoint: EndpointDoc }) {
           )}
 
           {!endpoint.headers && !endpoint.notes && (
-            <div className="p-4 text-sm text-slate-500 lg:border-r">
+            <div className="p-4 text-sm text-slate-500 dark:text-slate-400 lg:border-r">
               No headers or notes required.
             </div>
           )}
@@ -305,12 +305,12 @@ function EndpointCard({ endpoint }: { endpoint: EndpointDoc }) {
         <div className="space-y-4 p-4">
           {endpoint.body && (
             <div>
-              <p className="mb-2 font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">Request body</p>
+              <p className="mb-2 font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Request body</p>
               <CodeBlock>{endpoint.body}</CodeBlock>
             </div>
           )}
           <div>
-            <p className="mb-2 font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">Response</p>
+            <p className="mb-2 font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Response</p>
             <CodeBlock>{endpoint.response}</CodeBlock>
           </div>
         </div>
@@ -330,14 +330,14 @@ export function Docs() {
 
   return (
     <AppShell>
-      <div className="mb-8 rounded-[2rem] border border-slate-900/10 bg-white/70 p-5 shadow-sm backdrop-blur md:p-7">
-        <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">API Usage</p>
+      <div className="mb-8 rounded-[2rem] border border-slate-900/10 bg-white/70 p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-800/70 md:p-7">
+        <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">API Usage</p>
         <div className="mt-3 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <h1 className="font-heading text-4xl font-black tracking-[-0.04em] text-slate-950 md:text-6xl">
+            <h1 className="font-heading text-4xl font-black tracking-[-0.04em] text-slate-950 dark:text-slate-50 md:text-6xl">
               Throttlr API reference
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400 md:text-base">
               Endpoint-by-endpoint usage for calling Throttlr: required method, headers, body, response, and integration notes.
             </p>
           </div>
@@ -350,8 +350,8 @@ export function Docs() {
 
       <div className="grid gap-6 lg:grid-cols-[17rem_1fr]">
         <aside className="hidden lg:block">
-          <div className="sticky top-28 rounded-2xl border border-slate-900/10 bg-white/75 p-3 shadow-sm backdrop-blur">
-            <p className="px-3 py-2 font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500">Endpoints</p>
+          <div className="sticky top-28 rounded-2xl border border-slate-900/10 bg-white/75 p-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-800/70">
+            <p className="px-3 py-2 font-mono text-[0.65rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Endpoints</p>
             <nav className="space-y-1">
               {endpoints.map((endpoint) => {
                 const id = `${endpoint.method}-${endpoint.path}`.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase()
@@ -359,7 +359,7 @@ export function Docs() {
                   <a
                     key={id}
                     href={`#${id}`}
-                    className="block rounded-xl px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-950 hover:text-amber-200"
+                    className="block rounded-xl px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-950 hover:text-amber-200 dark:text-slate-400 dark:hover:bg-slate-950 dark:hover:text-amber-200"
                   >
                     <span className="mr-2 font-mono text-[0.7rem]">{endpoint.method}</span>
                     {endpoint.title}
@@ -376,7 +376,7 @@ export function Docs() {
               <section key={group} className="space-y-3">
                 <div className="flex items-center gap-3">
                   <h2 className="font-heading text-2xl font-bold tracking-tight">{group}</h2>
-                  <div className="h-px flex-1 bg-slate-900/10" />
+                  <div className="h-px flex-1 bg-slate-900/10 dark:bg-white/10" />
                 </div>
                 {groupEndpoints.map((endpoint) => (
                   <EndpointCard key={`${endpoint.method}-${endpoint.path}`} endpoint={endpoint} />
