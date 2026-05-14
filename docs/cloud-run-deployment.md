@@ -48,6 +48,25 @@ Runtime secrets are expected in Google Secret Manager:
 | `REDIS_PASSWORD` | `REDIS_PASSWORD` |
 | `CORS_ALLOWED_ORIGINS` | `CORS_ALLOWED_ORIGINS` |
 
+## Cloud Run Performance Settings
+
+The GitHub Actions deployment pins the backend to the benchmarked Cloud Run
+configuration so future CI/CD deployments keep the same runtime shape:
+
+```bash
+gcloud run deploy throttlr-api \
+  --cpu 2 \
+  --memory 2Gi \
+  --concurrency 5 \
+  --min-instances 0 \
+  --max-instances 40 \
+  --cpu-boost
+```
+
+This configuration was selected for the `/api/check` benchmark because lower
+per-instance concurrency encourages Cloud Run to scale out instead of queueing
+too many concurrent rate-limit checks on one instance.
+
 ## Local Docker Test
 
 ```bash
