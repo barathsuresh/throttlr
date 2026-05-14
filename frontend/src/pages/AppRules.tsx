@@ -4,10 +4,28 @@ import { ArrowLeft, Plus, Route } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { RuleForm } from '@/components/RuleForm'
+import { RuleCardSkeleton } from '@/components/RuleCardSkeleton'
 import { AppShell } from '@/components/AppShell'
+import { Pagination } from '@/components/Pagination'
 import { useRules } from '@/hooks/useRules'
 import { toast } from 'sonner'
 import type { CreateRuleRequest, RuleResponse } from '@/types'
+
+function formatWindow(ms: number): string {
+  if (ms % 3_600_000 === 0) {
+    const h = ms / 3_600_000
+    return `${h} hour${h !== 1 ? 's' : ''}`
+  }
+  if (ms % 60_000 === 0) {
+    const m = ms / 60_000
+    return `${m} minute${m !== 1 ? 's' : ''}`
+  }
+  if (ms % 1_000 === 0) {
+    const s = ms / 1_000
+    return `${s} second${s !== 1 ? 's' : ''}`
+  }
+  return `${ms}ms`
+}
 
 const ALGORITHM_COLORS: Record<string, string> = {
   FIXED_WINDOW: 'border-cyan-300 bg-cyan-50 text-cyan-900',
@@ -17,7 +35,7 @@ const ALGORITHM_COLORS: Record<string, string> = {
 
 export function AppRules() {
   const { appId } = useParams<{ appId: string }>()
-  const [page] = useState(0)
+  const [page, setPage] = useState(0)
   const { rules, isLoading, createRule, createPending, updateRule, updatePending, deleteRule } =
     useRules(appId!, page)
 
@@ -53,7 +71,7 @@ export function AppRules() {
       action={
         <div className="flex flex-wrap gap-2">
           <Link to="/dashboard">
-            <Button variant="outline" className="h-11 rounded-2xl bg-white/60">
+            <Button variant="outline" className="h-11 rounded-2xl bg-white/60 dark:bg-slate-800/60 dark:border-white/10 dark:text-slate-300">
               <ArrowLeft className="mr-1 size-4" />
               Dashboard
             </Button>
@@ -68,8 +86,8 @@ export function AppRules() {
       }
     >
       <div className="mb-6 glass-panel rounded-3xl p-4">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500">App ID</p>
-        <p className="mt-2 break-all font-mono text-sm text-slate-900">{appId}</p>
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">App ID</p>
+        <p className="mt-2 break-all font-mono text-sm text-slate-900 dark:text-slate-100">{appId}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -102,26 +120,30 @@ export function AppRules() {
         </div>
 
         <div className="space-y-3">
-          {isLoading && <p className="text-sm text-slate-600">Loading rules...</p>}
+          {isLoading && (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => <RuleCardSkeleton key={i} />)}
+            </div>
+          )}
 
-          {rules?.items.map((rule) => (
+          {!isLoading && rules?.items.map((rule) => (
             <div key={rule.ruleId} className="glass-panel rounded-3xl p-5 transition hover:-translate-y-0.5 hover:shadow-xl">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-amber-200">
                     <Route className="size-5" />
                   </div>
-                  <span className="break-all font-mono text-sm text-slate-950">{rule.clientId}</span>
+                  <span className="break-all font-mono text-sm text-slate-950 dark:text-slate-100">{rule.clientId}</span>
                 </div>
                 <Badge className={ALGORITHM_COLORS[rule.algorithm] ?? ''} variant="outline">
                   {rule.algorithm.replace(/_/g, ' ')}
                 </Badge>
               </div>
-              <p className="mt-4 text-sm text-slate-600">
-                {rule.limitPerWindow} requests / {rule.windowMs}ms
+              <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+                {rule.limitPerWindow} requests / {formatWindow(rule.windowMs)}
               </p>
               <div className="mt-4 flex gap-2">
-                <Button size="sm" variant="outline" className="rounded-xl bg-white/60" onClick={() => setEditing(rule)}>
+                <Button size="sm" variant="outline" className="rounded-xl bg-white/60 dark:bg-slate-800/60 dark:border-white/10 dark:text-slate-300" onClick={() => setEditing(rule)}>
                   Edit
                 </Button>
                 <Button
@@ -136,11 +158,21 @@ export function AppRules() {
             </div>
           ))}
 
-          {rules && rules.items.length === 0 && !adding && (
+          {!isLoading && rules && rules.items.length === 0 && !adding && (
             <div className="glass-panel rounded-[2rem] p-10 text-center">
-              <p className="font-heading text-2xl font-bold">No rules yet</p>
-              <p className="mt-2 text-sm text-slate-600">Add one to start rate limiting this app.</p>
+              <p className="font-heading text-2xl font-bold dark:text-slate-50">No rules yet</p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Add one to start rate limiting this app.</p>
             </div>
+          )}
+
+          {rules && rules.totalPages > 1 && (
+            <Pagination
+              page={page}
+              totalPages={rules.totalPages}
+              hasNext={rules.hasNext}
+              hasPrevious={rules.hasPrevious}
+              onPageChange={setPage}
+            />
           )}
         </div>
       </div>

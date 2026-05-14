@@ -3,18 +3,18 @@ import { Boxes, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AppCard } from '@/components/AppCard'
+import { AppCardSkeleton } from '@/components/AppCardSkeleton'
 import { OnetimeSecretModal } from '@/components/OnetimeSecretModal'
 import { AppShell } from '@/components/AppShell'
+import { Pagination } from '@/components/Pagination'
 import { useApps } from '@/hooks/useApps'
-import { useAuth } from '@/hooks/useAuth'
 import type { AppCreatedResponse } from '@/types'
 import axios from 'axios'
 import { toast } from 'sonner'
 
 export function Dashboard() {
-  const [page] = useState(0)
-  const { apps, isLoading, createApp, createPending, deleteApp } = useApps(page)
-  const { logout } = useAuth()
+  const [page, setPage] = useState(0)
+  const { apps, isLoading, createApp, createPending, deleteApp, rotateKey } = useApps(page)
 
   const [creating, setCreating] = useState(false)
   const [appName, setAppName] = useState('')
@@ -51,7 +51,6 @@ export function Dashboard() {
       eyebrow="Developer Console"
       title="Apps"
       description="Create app keys, organize rules, and inspect current-hour analytics from one control surface."
-      onLogout={logout}
       action={
         !creating && (
           <Button className="h-11 rounded-2xl px-5" onClick={() => setCreating(true)}>
@@ -67,19 +66,19 @@ export function Dashboard() {
           <p className="mt-3 font-heading text-4xl font-black">{apps?.totalItems ?? 0}</p>
         </div>
         <div className="glass-panel rounded-3xl p-5">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500">Rules tracked</p>
-          <p className="mt-3 font-heading text-4xl font-black">{totalRules}</p>
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Rules tracked</p>
+          <p className="mt-3 font-heading text-4xl font-black dark:text-slate-50">{totalRules}</p>
         </div>
         <div className="glass-panel rounded-3xl p-5">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500">Runtime auth</p>
-          <p className="mt-3 text-sm leading-6 text-slate-600">Use app keys for hot-path checks. JWT stays for dashboard-only operations.</p>
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Runtime auth</p>
+          <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">Use app keys for hot-path checks. JWT stays for dashboard-only operations.</p>
         </div>
       </section>
 
       {creating && (
         <form onSubmit={handleCreate} className="glass-panel mb-6 flex flex-col gap-3 rounded-3xl p-4 sm:flex-row">
           <Input
-            className="h-11 rounded-2xl bg-white/70"
+            className="h-11 rounded-2xl bg-white/70 dark:bg-slate-800/70 dark:text-slate-100 dark:placeholder:text-slate-500"
             placeholder="App name, e.g. Acme Gateway"
             value={appName}
             onChange={(e) => setAppName(e.target.value)}
@@ -94,19 +93,35 @@ export function Dashboard() {
         </form>
       )}
 
-      {isLoading && <p className="text-sm text-slate-600">Loading apps...</p>}
+      {isLoading && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => <AppCardSkeleton key={i} />)}
+        </div>
+      )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {apps?.items.map((app) => (
-          <AppCard key={app.appId} app={app} onDelete={handleDelete} />
-        ))}
-      </div>
+      {!isLoading && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {apps?.items.map((app) => (
+            <AppCard key={app.appId} app={app} onDelete={handleDelete} onRotateKey={rotateKey} />
+          ))}
+        </div>
+      )}
+
+      {apps && apps.totalPages > 1 && (
+        <Pagination
+          page={page}
+          totalPages={apps.totalPages}
+          hasNext={apps.hasNext}
+          hasPrevious={apps.hasPrevious}
+          onPageChange={setPage}
+        />
+      )}
 
       {apps && apps.items.length === 0 && (
         <div className="glass-panel grid place-items-center rounded-[2rem] p-12 text-center">
-          <Boxes className="mb-4 size-10 text-slate-500" />
-          <p className="font-heading text-2xl font-bold">No apps yet</p>
-          <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">
+          <Boxes className="mb-4 size-10 text-slate-500 dark:text-slate-400" />
+          <p className="font-heading text-2xl font-bold dark:text-slate-50">No apps yet</p>
+          <p className="mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400">
             Create your first app to receive a one-time app key and start adding rate-limit rules.
           </p>
         </div>

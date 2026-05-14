@@ -107,6 +107,30 @@ public class AppService {
                                 appPage.hasPrevious());
         }
 
+        public AppCreatedResponse rotateAppKey(String accountId, String appId) {
+                App app = appRepository.findByIdAndAccountId(appId, accountId)
+                                .orElseThrow(() -> new ResourceNotFoundException("App not found"));
+
+                String newAppKey = appKeyService.generateAppKey();
+                String newLookup = appKeyService.createLookup(newAppKey);
+                String newHash = appKeyService.hash(newAppKey);
+
+                appKeyCacheService.delete(app.getApiKeyLookup());
+
+                app.setApiKeyLookup(newLookup);
+                app.setApiKeyHash(newHash);
+                App saved = appRepository.save(app);
+                appKeyCacheService.put(saved);
+
+                log.info("[APP] App key rotated - accountId: [{}], appId: [{}]", accountId, appId);
+
+                return new AppCreatedResponse(
+                                saved.getId(),
+                                saved.getName(),
+                                newAppKey,
+                                "App key rotated successfully. Save this new key now — it will not be shown again.");
+        }
+
         public void deleteApp(String accountId, String appId) {
                 App app = appRepository.findByIdAndAccountId(appId, accountId)
                                 .orElseThrow(() -> new ResourceNotFoundException("App not found"));

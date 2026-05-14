@@ -58,6 +58,14 @@ public class AppController {
         appService.deleteApp(principal.accountId(), appId);
     }
 
+    /** Rotates app key — invalidates current key and issues a new one (shown once). */
+    @PostMapping("/{appId}/rotate-key")
+    public AppCreatedResponse rotateAppKey(
+            @AuthenticationPrincipal AccountPrincipal principal,
+            @PathVariable String appId) {
+        return appService.rotateAppKey(principal.accountId(), appId);
+    }
+
     /** Retrieves current hour analytics: total, allowed, and blocked requests. */
     @GetMapping("/{appId}/analytics")
     public AnalyticsResponse getAnalytics(

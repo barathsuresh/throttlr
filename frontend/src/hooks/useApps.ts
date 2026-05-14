@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { listApps, createApp, deleteApp } from '@/api/apps'
+import { listApps, createApp, deleteApp, rotateAppKey } from '@/api/apps'
 import type { CreateAppRequest } from '@/types'
 
 export function useApps(page: number) {
@@ -20,6 +20,10 @@ export function useApps(page: number) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['apps'] }),
   })
 
+  const rotate = useMutation({
+    mutationFn: (appId: string) => rotateAppKey(appId),
+  })
+
   return {
     apps: query.data,
     isLoading: query.isLoading,
@@ -27,5 +31,7 @@ export function useApps(page: number) {
     createPending: create.isPending,
     deleteApp: remove.mutateAsync,
     deletePending: remove.isPending,
+    rotateKey: rotate.mutateAsync,
+    rotatePending: rotate.isPending,
   }
 }

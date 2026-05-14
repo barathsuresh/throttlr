@@ -30,17 +30,17 @@ export function OnetimeSecretModal({ open, title, label, secret, onConfirmed }: 
           This {label.toLowerCase()} will not be shown again. Copy it now and store it safely.
         </p>
 
-        <div className="relative rounded-md bg-slate-50 border p-3 font-mono text-sm break-all">
+        <div className="relative rounded-md border border-border bg-slate-50 p-3 font-mono text-sm break-all text-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:border-white/10">
           {secret}
           <button
             onClick={handleCopy}
-            className="absolute top-2 right-2 text-xs text-slate-500 hover:text-slate-800 underline"
+            className="absolute top-2 right-2 text-xs text-slate-500 hover:text-slate-800 underline dark:text-slate-400 dark:hover:text-slate-200"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
 
-        <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-sm cursor-pointer select-none text-popover-foreground">
           <input
             type="checkbox"
             role="checkbox"

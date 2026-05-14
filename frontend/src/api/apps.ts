@@ -9,3 +9,6 @@ export const listApps = (page: number, size = 10): Promise<PagedResponse<AppResp
 
 export const deleteApp = (appId: string): Promise<void> =>
   api.delete(`/api/apps/${appId}`).then(() => undefined)
+
+export const rotateAppKey = (appId: string): Promise<AppCreatedResponse> =>
+  api.post<AppCreatedResponse>(`/api/apps/${appId}/rotate-key`).then((r) => r.data)
