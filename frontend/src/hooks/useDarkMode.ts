@@ -5,7 +5,7 @@ const KEY = 'throttlr_dark'
 function getInitial(): boolean {
   const stored = localStorage.getItem(KEY)
   if (stored !== null) return stored === 'true'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
+  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches
 }
 
 export function useDarkMode() {
