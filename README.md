@@ -12,6 +12,7 @@
 
 ## Contents
 
+- [Demo](#demo)
 - [Architecture](#architecture)
 - [Algorithms](#algorithms)
 - [Performance](#performance)
@@ -19,6 +20,21 @@
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
 - [Configuration](#configuration)
+
+---
+
+## Demo
+
+![Throttlr demo flow](docs/assets/throttlr-demo.gif)
+
+Temporary demo key -> repeated `POST /api/check` calls -> Redis-backed block decision when the fixed-window rule is exhausted.
+
+To regenerate the GIF locally, run the backend and dependencies, then record the script with Terminalizer:
+
+```bash
+terminalizer record docs/assets/throttlr-demo -d './scripts/terminalizer-demo.sh' -k
+terminalizer render docs/assets/throttlr-demo -o docs/assets/throttlr-demo.gif
+```
 
 ---
 

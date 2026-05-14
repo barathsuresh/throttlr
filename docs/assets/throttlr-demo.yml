@@ -1,0 +1,167 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: ./scripts/terminalizer-demo.sh
+  
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: /Users/barathsuresh/Developer/CODING/PROJECTS/backend/throttlr
+  
+  # Export additional ENV variables
+  env:
+    recording: true
+  
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 80
+  
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 24
+  
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+  
+  # Quality
+  # 1 - 100
+  quality: 100
+  
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+  
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 4000
+  
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: floating
+    title: Terminalizer
+    style:
+      border: 0px black solid
+      # boxShadow: none
+      # margin: 0px
+  
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+  
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+  
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+  
+  # The size of the font
+  fontSize: 12
+  
+  # The height of lines
+  lineHeight: 1
+  
+  # The spacing between letters
+  letterSpacing: 0
+  
+  # Theme
+  theme:
+    background: "transparent"
+    foreground: "#afafaf"
+    cursor: "#c7c7c7"
+    black: "#232628"
+    red: "#fc4384"
+    green: "#b3e33b"
+    yellow: "#ffa727"
+    blue: "#75dff2"
+    magenta: "#ae89fe"
+    cyan: "#708387"
+    white: "#d5d5d0"
+    brightBlack: "#626566"
+    brightRed: "#ff7fac"
+    brightGreen: "#c8ed71"
+    brightYellow: "#ebdf86"
+    brightBlue: "#75dff2"
+    brightMagenta: "#ae89fe"
+    brightCyan: "#b1c6ca"
+    brightWhite: "#f9f9f4"
+  
+# Records, feel free to edit them
+records:
+  - delay: 850
+    content: "\e[3J\e[H\e[2J$ curl -sS -X POST http://127.0.0.1:8080/api/demo/app-key | jq\r\n"
+  - delay: 1600
+    content: "{\r\n  \"appId\": \"demo-70610ac4-d55a-4dbb-8180-98a92fb04b08\",\r\n  \"appKey\": \"throttlr_live_...redacted\",\r\n  \"expiresInMs\": 900000,\r\n  \"rules\": [\r\n    {\r\n      \"clientId\": \"demo-user-fixed-window\",\r\n      \"algorithm\": \"FIXED_WINDOW\",\r\n      \"limitPerWindow\": 10,\r\n      \"windowMs\": 60000\r\n    },\r\n    {\r\n      \"clientId\": \"demo-user-token-bucket\",\r\n      \"algorithm\": \"TOKEN_BUCKET\",\r\n      \"limitPerWindow\": 10,\r\n      \"windowMs\": 60000\r\n    },\r\n    {\r\n      \"clientId\": \"demo-user-sliding-window\",\r\n      \"algorithm\": \"SLIDING_WINDOW\",\r\n      \"limitPerWindow\": 10,\r\n      \"windowMs\": 60000\r\n    }\r\n  ],\r\n  \"message\": \"Temporary demo app key created. It expires automatically.\"\r\n}\r\n"
+  - delay: 1200
+    content: "\r\n$ for i in {1..12}; do curl -sS -X POST http://127.0.0.1:8080/api/check ... | jq; done\r\n"
+  - delay: 900
+    content: "\r\n# request 1\r\n"
+  - delay: 900
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 9,\r\n  \"resetAfterMs\": 60000,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 900
+    content: "\r\n# request 2\r\n"
+  - delay: 900
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 8,\r\n  \"resetAfterMs\": 59698,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 900
+    content: "\r\n# request 3\r\n"
+  - delay: 900
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 7,\r\n  \"resetAfterMs\": 59401,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 900
+    content: "\r\n# request 4\r\n"
+  - delay: 900
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 6,\r\n  \"resetAfterMs\": 59127,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 900
+    content: "\r\n# request 5\r\n"
+  - delay: 900
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 5,\r\n  \"resetAfterMs\": 58826,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 900
+    content: "\r\n# request 6\r\n"
+  - delay: 900
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 4,\r\n  \"resetAfterMs\": 58529,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 900
+    content: "\r\n# request 7\r\n"
+  - delay: 900
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 3,\r\n  \"resetAfterMs\": 58224,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 900
+    content: "\r\n# request 8\r\n"
+  - delay: 900
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 2,\r\n  \"resetAfterMs\": 57922,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 900
+    content: "\r\n# request 9\r\n"
+  - delay: 1100
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 1,\r\n  \"resetAfterMs\": 57625,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 1400
+    content: "\r\n# request 10\r\n"
+  - delay: 1800
+    content: "{\r\n  \"allowed\": true,\r\n  \"remaining\": 0,\r\n  \"resetAfterMs\": 57305,\r\n  \"retryAfterMs\": 0\r\n}\r\n"
+  - delay: 1800
+    content: "\r\n# request 11\r\n"
+  - delay: 2400
+    content: "{\r\n  \"allowed\": false,\r\n  \"remaining\": 0,\r\n  \"resetAfterMs\": 57018,\r\n  \"retryAfterMs\": 57018\r\n}\r\n"
+  - delay: 1800
+    content: "\r\n# request 12\r\n"
+  - delay: 3000
+    content: "{\r\n  \"allowed\": false,\r\n  \"remaining\": 0,\r\n  \"resetAfterMs\": 56728,\r\n  \"retryAfterMs\": 56728\r\n}\r\n"
