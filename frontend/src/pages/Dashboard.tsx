@@ -94,13 +94,13 @@ export function Dashboard() {
       )}
 
       {isLoading && (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid items-start gap-4 lg:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => <AppCardSkeleton key={i} />)}
         </div>
       )}
 
       {!isLoading && (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid items-start gap-4 lg:grid-cols-2">
           {apps?.items.map((app) => (
             <AppCard key={app.appId} app={app} onDelete={handleDelete} onRotateKey={rotateKey} />
           ))}

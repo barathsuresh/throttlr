@@ -38,6 +38,10 @@ export const handlers = [
     new HttpResponse(null, { status: 204 })
   ),
 
+  http.post('http://127.0.0.1:8080/api/apps/:appId/rotate-key', () =>
+    HttpResponse.json({ appId: 'app-1', name: 'Test App', appKey: 'throttlr_live_newkey123', message: 'Save this new key.' })
+  ),
+
   http.get('http://127.0.0.1:8080/api/apps/:appId/analytics', () =>
     HttpResponse.json({ appId: 'app-1', hour: 1700000000000, total: 10, allowed: 7, blocked: 3 })
   ),
