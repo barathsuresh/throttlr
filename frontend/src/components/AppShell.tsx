@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom'
 import type { ReactNode } from 'react'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Github } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getToken } from '@/lib/token'
 import { useAuth } from '@/hooks/useAuth'
@@ -68,6 +68,11 @@ export function AppShell({
           </nav>
 
           <div className="flex items-center gap-2">
+            <a href="https://github.com/barathsuresh/throttlr" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" aria-label="GitHub repository">
+                <Github className="size-4" />
+              </Button>
+            </a>
             <Button variant="ghost" size="sm" onClick={toggle} aria-label="Toggle dark mode">
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </Button>
