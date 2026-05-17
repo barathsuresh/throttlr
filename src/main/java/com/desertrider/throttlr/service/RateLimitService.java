@@ -1,5 +1,7 @@
 package com.desertrider.throttlr.service;
 
+import java.time.Duration;
+
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RateLimitService {
+    private static final Duration SYNTHESIZED_RULE_TTL = Duration.ofSeconds(30);
+
     private final AppKeyService appKeyService;
     private final RuleCacheService ruleCacheService;
     private final FixedWindowRateLimiter fixedWindowRateLimiter;
@@ -56,12 +60,17 @@ public class RateLimitService {
         CheckResponse response = ruleCacheService.findByAppIdAndClientId(app.getId(), clientId)
                 .or(() -> patternMatcher
                         .findBestMatch(ruleCacheService.findPatternsByAppId(app.getId()), clientId)
-                        .map(pattern -> synthesizeRule(pattern, clientId)))
+                        .map(pattern -> cacheSynthesizedRule(synthesizeRule(pattern, clientId))))
                 .map(this::checkConfiguredRule)
                 .orElseGet(this::allowWithoutRule);
 
         analyticsService.record(app, clientId, response);
         return response;
+    }
+
+    private Rule cacheSynthesizedRule(Rule rule) {
+        ruleCacheService.put(rule, SYNTHESIZED_RULE_TTL);
+        return rule;
     }
 
     private Rule synthesizeRule(Rule pattern, String actualClientId) {

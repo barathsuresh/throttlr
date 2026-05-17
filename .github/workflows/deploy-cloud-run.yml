@@ -77,6 +77,8 @@ jobs:
             --region "$REGION" \
             --platform managed \
             --allow-unauthenticated \
+            --network default \
+            --subnet default \
             --min-instances 0 \
             --max-instances 40 \
             --memory 2Gi \
@@ -84,5 +86,5 @@ jobs:
             --concurrency 5 \
             --cpu-boost \
             --port 8080 \
-            --set-env-vars SPRING_PROFILES_ACTIVE=prod,TRUST_FORWARDED_HEADERS=true,REDIS_SSL_ENABLED=true \
+            --set-env-vars SPRING_PROFILES_ACTIVE=prod,TRUST_FORWARDED_HEADERS=true,REDIS_SSL_ENABLED=false \
             --set-secrets JWT_SECRET=JWT_SECRET:latest,AUTH_LOOKUP_SECRET=AUTH_LOOKUP_SECRET:latest,APP_KEY_LOOKUP_SECRET=APP_KEY_LOOKUP_SECRET:latest,ADMIN_KEY=ADMIN_KEY:latest,MONGODB_URI=MONGODB_URI:latest,REDIS_HOST=REDIS_HOST:latest,REDIS_PORT=REDIS_PORT:latest,REDIS_PASSWORD=REDIS_PASSWORD:latest,CORS_ALLOWED_ORIGINS=CORS_ALLOWED_ORIGINS:latest

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -225,6 +226,10 @@ class RateLimitServiceTest {
         assertNotNull(fixedWindowRateLimiter.rule);
         assertEquals("user:abc123", fixedWindowRateLimiter.rule.getClientId());
         assertEquals(10, fixedWindowRateLimiter.rule.getLimitPerWindow());
+        assertNotNull(ruleCacheService.cachedRule);
+        assertEquals("user:abc123", ruleCacheService.cachedRule.getClientId());
+        assertEquals(10, ruleCacheService.cachedRule.getLimitPerWindow());
+        assertEquals(Duration.ofSeconds(30), ruleCacheService.cachedTtl);
     }
 
     @Test
@@ -278,6 +283,8 @@ class RateLimitServiceTest {
 
     private static final class PatternRuleCacheService implements RuleCacheService {
         private final Rule patternRule;
+        private Rule cachedRule;
+        private Duration cachedTtl;
 
         private PatternRuleCacheService(Rule patternRule) {
             this.patternRule = patternRule;
@@ -294,7 +301,15 @@ class RateLimitServiceTest {
         }
 
         @Override
-        public void put(Rule rule) {}
+        public void put(Rule rule) {
+            this.cachedRule = rule;
+        }
+
+        @Override
+        public void put(Rule rule, Duration ttl) {
+            this.cachedRule = rule;
+            this.cachedTtl = ttl;
+        }
 
         @Override
         public void delete(String appId, String clientId) {}

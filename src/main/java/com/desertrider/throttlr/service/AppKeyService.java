@@ -77,7 +77,7 @@ public class AppKeyService {
         return passwordEncoder.encode(normalizeForPasswordEncoder(appKey));
     }
 
-    /** Verifies raw app key against stored bcrypt hash. */
+    /** Verifies raw app key against stored hash. Used outside the hot-path lookup. */
     public boolean matches(String rawAppKey, String storedHash) {
         String normalizedAppKey = normalizeForPasswordEncoder(rawAppKey);
         return passwordEncoder.matches(normalizedAppKey, storedHash);
@@ -99,14 +99,15 @@ public class AppKeyService {
                 InputLimits.APP_KEY_MAX_LENGTH,
                 "App key must be at most 500 characters");
 
-        App app = appKeyCacheService.findByLookup(createLookup(appKey))
+        String lookup = createLookup(appKey);
+        App app = appKeyCacheService.findByLookup(lookup)
                 .orElseThrow(() -> {
                     log.warn("[APP-KEY] Validation failed - app key not found");
                     return new UnauthorizedException("Invalid app key");
                 });
 
-        if (!matches(appKey, app.getApiKeyHash())) {
-            log.warn("[APP-KEY] Validation failed - hash mismatch for appId: [{}]", app.getId());
+        if (!lookup.equals(app.getApiKeyLookup())) {
+            log.warn("[APP-KEY] Validation failed - lookup mismatch for appId: [{}]", app.getId());
             throw new UnauthorizedException("Invalid app key");
         }
 

@@ -6,7 +6,10 @@ import java.time.temporal.ChronoUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 
 import com.desertrider.throttlr.dto.response.CheckResponse;
@@ -29,10 +32,16 @@ public class RedisAnalyticsService implements AnalyticsService {
             String key = redisKey(app.getId());
             String decisionField = response.allowed() ? "allowed" : "blocked";
 
-            redisTemplate.opsForHash().increment(key, "total", 1);
-            redisTemplate.opsForHash().increment(key, decisionField, 1);
-            redisTemplate.opsForHash().increment(key, "client:" + clientId, 1);
-            redisTemplate.expire(key, ANALYTICS_TTL);
+            redisTemplate.executePipelined(new SessionCallback<Void>() {
+                @Override
+                public <K, V> Void execute(RedisOperations<K, V> operations) throws DataAccessException {
+                    operations.opsForHash().increment((K) key, "total", 1);
+                    operations.opsForHash().increment((K) key, decisionField, 1);
+                    operations.opsForHash().increment((K) key, "client:" + clientId, 1);
+                    operations.expire((K) key, ANALYTICS_TTL);
+                    return null;
+                }
+            });
         } catch (Exception e) {
             log.warn("[ANALYTICS] Failed to record analytics - appId: [{}]", app.getId(), e);
         }
