@@ -60,17 +60,12 @@ gcloud run deploy throttlr-api \
   --concurrency 5 \
   --min-instances 0 \
   --max-instances 40 \
-  --cpu-boost \
-  --network default \
-  --subnet default
+  --cpu-boost
 ```
 
 This configuration was selected for the `/api/check` benchmark because lower
 per-instance concurrency encourages Cloud Run to scale out instead of queueing
 too many concurrent rate-limit checks on one instance.
-
-When using GCP Memorystore for Redis, Cloud Run reaches Redis through the VPC
-and `REDIS_SSL_ENABLED` must be set to `false`.
 
 ## Local Docker Test
 
