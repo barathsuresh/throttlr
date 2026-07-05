@@ -1,0 +1,30 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored.
+
+project_id = "throttlr-prod"
+region     = "us-central1"
+
+service_name        = "throttlr-api"
+artifact_repository = "throttlr"
+
+# Image must already exist in Artifact Registry (build + push first).
+image = "us-central1-docker.pkg.dev/throttlr-prod/throttlr/throttlr-api:latest"
+
+allow_unauthenticated = true
+
+# Runtime shape — defaults match the benchmarked Cloud Run configuration.
+# cpu           = "2"
+# memory        = "2Gi"
+# concurrency   = 5
+# min_instances = 0
+# max_instances = 40
+
+# --- Secrets (use real strong values; prod profile rejects placeholders) ---
+jwt_secret            = "replace-me-with-32-plus-bytes"
+auth_lookup_secret    = "replace-me"
+app_key_lookup_secret = "replace-me"
+admin_key             = "replace-me"
+mongodb_uri           = "mongodb+srv://user:pass@cluster.mongodb.net/throttlr"
+redis_host            = "your-redis.upstash.io"
+redis_port            = "6379"
+redis_password        = "replace-me"
+cors_allowed_origins  = "https://your-frontend.example"

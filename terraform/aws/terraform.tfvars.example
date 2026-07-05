@@ -1,0 +1,26 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored.
+
+region       = "us-east-1"
+service_name = "throttlr-api"
+
+# Image tag in ECR to deploy (push the image before the first apply;
+# see terraform/README.md for the two-phase bootstrap).
+image_tag = "latest"
+
+# Runtime shape — App Runner pairs 2 vCPU with a 4 GB minimum.
+# cpu             = "2 vCPU"
+# memory          = "4 GB"
+# max_concurrency = 5
+# min_instances   = 1
+# max_instances   = 40
+
+# --- Secrets (use real strong values; prod profile rejects placeholders) ---
+jwt_secret            = "replace-me-with-32-plus-bytes"
+auth_lookup_secret    = "replace-me"
+app_key_lookup_secret = "replace-me"
+admin_key             = "replace-me"
+mongodb_uri           = "mongodb+srv://user:pass@cluster.mongodb.net/throttlr"
+redis_host            = "your-redis.upstash.io"
+redis_port            = "6379"
+redis_password        = "replace-me"
+cors_allowed_origins  = "https://your-frontend.example"
