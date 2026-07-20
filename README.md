@@ -69,17 +69,15 @@ All three algorithms are implemented as atomic Redis Lua scripts. Algorithm is c
 
 ## Performance
 
-Load test: 5,000 `POST /api/check` requests, 20 concurrent clients, deployed on GCP Cloud Run.
+Load test: 20,000 `POST /api/check` requests, 20 concurrent clients, deployed on GCP Cloud Run.
 
 | Metric | Result |
 |---|---|
-| Throughput | 44.9 req/sec |
-| p50 latency | 551 ms |
-| p95 latency | 625 ms |
-| p99 latency | 1,012 ms |
+| Throughput | 109.5 req/sec |
+| Mean latency | 182 ms |
 | Error rate | 0% |
 
-Baseline throughput before Cloud Run tuning was 9.77 req/sec. Tuning Cloud Run concurrency, min instances, and enabling Java virtual threads achieved a **4.6× throughput improvement** with no code changes to the hot path.
+Baseline throughput before Cloud Run tuning was 9.8 req/sec. Tuning Cloud Run concurrency, min instances, and enabling Java virtual threads achieved an **11.2× throughput improvement** with no code changes to the hot path.
 
 ---
 
